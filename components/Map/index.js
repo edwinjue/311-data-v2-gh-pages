@@ -10,6 +10,7 @@ import { updateStartDate, updateEndDate, updateNcId, updateRequestTypes} from '@
 import { updateMapPosition } from '@reducers/ui';
 import { trackMapExport } from '@reducers/analytics';
 import { INTERNAL_DATE_SPEC } from '../common/CONSTANTS';
+import { getTypeIdFromTypeName } from '@utils';
 import CookieNotice from '../main/CookieNotice';
 // import "mapbox-gl/dist/mapbox-gl.css";
 import Map from './Map';
@@ -248,14 +249,18 @@ class MapContainer extends React.Component {
    */
   getAllRequests = (startDate, endDate) => {
     const datesInRange = this.getDatesInRange(startDate, endDate);
+    const url = `${process.env.SOCRATA_API_URL}?$where=` + encodeURI(`createddate between '${startDate}' and '${endDate}'`) +`&$limit=${REQUEST_LIMIT}&$$app_token=${process.env.SOCRATA_TOKEN}`
+    // console.log(`url: ${url}`)
+    
     var requests = [];
-    for (const date of datesInRange){
-      const url = new URL(`${process.env.API_URL}/requests`);
-      url.searchParams.append("start_date", date);
-      url.searchParams.append("end_date", date);
-      url.searchParams.append("limit", `${REQUEST_LIMIT}`);
-      requests.push(axios.get(url));
-    }
+    // for (const date of datesInRange){
+    //   const url = new URL(`${process.env.API_URL}/requests`);
+    //   url.searchParams.append("start_date", date);
+    //   url.searchParams.append("end_date", date);
+    //   url.searchParams.append("limit", `${REQUEST_LIMIT}`);
+    //   requests.push(axios.get(url));
+    // }
+    requests.push(axios.get(url));
     return requests;
   };
 
@@ -274,11 +279,15 @@ class MapContainer extends React.Component {
         missingDateRange[1]);
       allRequestPromises.push(...requestPromises);    
     }
-    await Promise.all(allRequestPromises).then(responses => {
+    await Promise.all(allRequestPromises.flat()).then(responses => {
       responses.forEach(response => this.rawRequests.push(...response.data))
     });
 
-    if (this.isSubscribed) {
+    console.log(`this.rawRequests.length: ${this.rawRequests.length}`)
+    if(this.rawRequests.length > 0 )
+      // console.log(`this.rawRequests[0]: `, this.rawRequests[0])
+
+     if (this.isSubscribed) {
       const { getDataSuccess, updateDateRangesWithRequests } = this.props;
       getDataSuccess(this.convertRequests(this.rawRequests));
       const newDateRangesWithRequests = this.resolveDateRanges(missingDateRanges);
@@ -289,8 +298,8 @@ class MapContainer extends React.Component {
   convertRequests = requests => (requests.map(request => ({
       type: 'Feature',
       properties: {
-        requestId: request.requestId,
-        typeId: request.typeId,
+        requestId: request.srnumber,
+        typeId: getTypeIdFromTypeName(request.requesttype),
         closedDate: request.closedDate,
         // Store this in milliseconds so that it's easy to do date comparisons
         // using Mapbox GL JS filters.
