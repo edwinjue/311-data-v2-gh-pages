@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: dist
+    working-directory: /
 
 jobs:
   build:
