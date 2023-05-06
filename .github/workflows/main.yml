@@ -16,6 +16,9 @@ jobs:
       
     runs-on: ubuntu-latest
     steps:
+    - name: Create dist directory
+      run: mkdir -p /home/runner/work/311-data-v2-gh-pages/311-data-v2-gh-pages/dist
+    
     - name: Checkout Repo Code
       uses: actions/checkout@v2
       
