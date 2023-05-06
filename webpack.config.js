@@ -92,9 +92,9 @@ module.exports = {
       path: './.env',
     }),
     new HtmlWebpackPlugin({
-      template: './public/index.html',
+      template: './index.html',
       title: '311-Data Neighborhood Engagement Tool',
-      favicon: './public/favicon.png',
+      favicon: './favicon.png',
       meta: {
         description,
       },
