@@ -33,11 +33,11 @@ jobs:
       run: npm install
     
     - name: Create dist directory
-      run: mkdir -p /home/runner/work/311-data-v2-gh-pages/311-data-v2-gh-pages/dist
+#       run: mkdir -p /home/runner/work/311-data-v2-gh-pages/311-data-v2-gh-pages/dist
       
     - name: Build and deploy
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        FOLDER: dist
+        FOLDER: /
         BRANCH: gh-pages
