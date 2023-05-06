@@ -34,7 +34,7 @@ jobs:
     
     - name: Setup environment
       run: |
-        echo REACT_APP_PRIVATE_MAPBOX_ACCESS_TOKEN=${{ secrets.MAPBOX_TOKEN }} > .env
+        echo "MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}" > $GITHUB_ENV
       
     - name: Build and deploy
       uses: JamesIves/github-pages-deploy-action@4.1.1
