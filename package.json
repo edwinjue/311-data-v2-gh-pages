@@ -58,7 +58,7 @@
   },
   "scripts": {
     "predeploy": "npm run build",
-    "deploy": "gh-pages -b gh-pages -d build",
+    "deploy": "gh-pages -b gh-pages -d dist",
     "start": "npm run check-env && npm run dev",
     "setup": "npm i && npm run check-env",
     "dev": "webpack-dev-server --config webpack.dev.js",
