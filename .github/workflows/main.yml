@@ -38,6 +38,10 @@ jobs:
         echo "SOCRATA_API_URL=${{ secrets.SOCRATA_API_URL }}" >> $GITHUB_ENV
         echo "SOCRATA_TOKEN=${{ secrets.SOCRATA_TOKEN }}" >> $GITHUB_ENV
         
+    - name: Build website
+      run: |
+        npm run build
+      
     - name: Build and deploy
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
