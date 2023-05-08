@@ -44,6 +44,6 @@ jobs:
     - name: Build and deploy
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
-        TOKEN: ${{ secrets.ACCESS_TOKEN }}
+#         TOKEN: ${{ secrets.ACCESS_TOKEN }}
         FOLDER: .
         BRANCH: gh-pages
