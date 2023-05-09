@@ -46,7 +46,7 @@ jobs:
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
   #         TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        FOLDER: .
+        FOLDER: dist
         BRANCH: gh-pages
 
 # Chelsey
