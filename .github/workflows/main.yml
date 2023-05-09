@@ -38,6 +38,17 @@ jobs:
         echo "SOCRATA_API_URL=${{ secrets.SOCRATA_API_URL }}" >> $GITHUB_ENV
         echo "SOCRATA_TOKEN=${{ secrets.SOCRATA_TOKEN }}" >> $GITHUB_ENV
 
+# JamesIves
+    - name: Build website
+      run: npm run build
+
+    - name: JamesIves Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.1
+      with:
+  #         TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        FOLDER: dist
+        BRANCH: gh-pages
+
 # Chelsey
 #     - name: Configuring git…
 #       run: |
@@ -53,16 +64,3 @@ jobs:
 #         git remote rm origin
 #         git remote add origin https://github.com/edwinjue/311-data-v2-gh-pages.git
 #         npm run deploy
-
-# JamesIves
-    - name: Build website
-    run: npm run build
-
-    - name: Build & Deploy
-    uses: JamesIves/github-pages-deploy-action@4.1.1
-    with:
-#         TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      FOLDER: dist
-      BRANCH: gh-pages
-
-
