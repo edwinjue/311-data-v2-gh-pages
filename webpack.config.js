@@ -1,7 +1,7 @@
 const Dotenv = require('dotenv-webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const SocialTags = require('social-tags-webpack-plugin');
 
@@ -102,11 +102,11 @@ module.exports = {
         description,
       },
     }),
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     { from: 'public/404.html', to: '404.html' },
-    //   ],
-    // }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public/404.html', to: '404.html' },
+      ],
+    }),
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
