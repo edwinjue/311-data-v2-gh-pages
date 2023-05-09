@@ -38,16 +38,21 @@ jobs:
         echo "SOCRATA_API_URL=${{ secrets.SOCRATA_API_URL }}" >> $GITHUB_ENV
         echo "SOCRATA_TOKEN=${{ secrets.SOCRATA_TOKEN }}" >> $GITHUB_ENV
 
-    - name: Configuring git…
+#     - name: Configuring git…
+#       run: |
+#         git config --global user.email "hungrylulu8@gmail.com"
+#         git config --global user.name "edwinjue"
+#         git remote rm origin
+#         git remote add origin https://github.com/edwinjue/311-data-v2-gh-pages.git
+
+    - name: Build website
       run: |
         git config --global user.email "hungrylulu8@gmail.com"
         git config --global user.name "edwinjue"
-        git config --local --unset-all http.https://github.com/.extraheader
         git remote rm origin
         git remote add origin https://github.com/edwinjue/311-data-v2-gh-pages.git
-
-    - name: Build website
-      run: npm run deploy
+        npm run deploy
+        
 #     run: npm run build
 
 #     - name: Build and deploy
