@@ -94,9 +94,9 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       // filename: path.join(__dirname, '/dist/index.html'),
-      template: './index.html',
+      template: './public/index.html',
       title: '311-Data Neighborhood Engagement Tool',
-      favicon: './favicon.png',
+      favicon: './public/favicon.png',
       meta: {
         description,
       },
