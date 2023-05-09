@@ -1,6 +1,7 @@
 {
   "name": "311-data",
   "version": "0.1.0",
+  "private": false,
   "engines": {
     "node": "12.x"
   },
