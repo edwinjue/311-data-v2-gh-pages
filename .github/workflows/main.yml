@@ -38,6 +38,11 @@ jobs:
         echo "SOCRATA_API_URL=${{ secrets.SOCRATA_API_URL }}" >> $GITHUB_ENV
         echo "SOCRATA_TOKEN=${{ secrets.SOCRATA_TOKEN }}" >> $GITHUB_ENV
 
+    - name: Configuring git…
+      run: |
+        /usr/bin/git config user.name edwinjue
+        /usr/bin/git config user.email hungrylulu8@gmail.com
+
     - name: Build website
       run: npm run deploy
 #     run: npm run build
