@@ -40,8 +40,8 @@ jobs:
 
     - name: Configuring git…
       run: |
-        /usr/bin/git config --global user.email "hungrylulu8@gmail.com"
-        /usr/bin/git config --global user.name "edwinjue"
+        git config --global user.email "hungrylulu8@gmail.com"
+        git config --global user.name "edwinjue"
 
     - name: Build website
       run: npm run deploy
