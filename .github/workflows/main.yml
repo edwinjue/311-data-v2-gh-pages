@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: /
+    working-directory: .
 
 jobs:
   build:
@@ -32,19 +32,18 @@ jobs:
     - name: Install Packages
       run: npm install
     
+    - name: Build website
+      run: npm run build
+    
     - name: Setup environment
       run: |
         echo "MAPBOX_TOKEN=${{ secrets.MAPBOX_TOKEN }}" > $GITHUB_ENV
         echo "SOCRATA_API_URL=${{ secrets.SOCRATA_API_URL }}" >> $GITHUB_ENV
         echo "SOCRATA_TOKEN=${{ secrets.SOCRATA_TOKEN }}" >> $GITHUB_ENV
-        
-    - name: Build website
-      run: |
-        npm run build
       
     - name: Build and deploy
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
-        TOKEN: ${{ secrets.ACCESS_TOKEN }}
+#         TOKEN: ${{ secrets.ACCESS_TOKEN }}
         FOLDER: .
         BRANCH: gh-pages
