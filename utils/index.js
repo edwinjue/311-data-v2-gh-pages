@@ -1,7 +1,44 @@
 import _debounce from 'lodash.debounce';
 import settings from '@settings';
+import requestTypes from '@root/data/requestTypes';
 
 export default {};
+
+function removeSpaces(str) {
+  if (!!str === false || typeof str !== 'string') {
+    return null;
+  }
+
+  return str.replace(/\s/g, '');
+}
+
+export function getTypeIdFromTypeName(typeNameParam = '') {
+  // early return null if we have invalid criteria
+  if (!!typeNameParam === false
+      || typeof typeNameParam !== 'string'
+      || !!requestTypes === false
+      || requestTypes.length === 0
+  ) {
+    return null;
+  }
+
+  // requestTypes is an array of objects imported from @root/data/requestTypes.js
+  // see if any of our known types are a substring of the input string
+  // (because Socrata API can return something this: "Illegal Dumping Pickup"
+  // which should match "Illegal Dumping")
+
+  let subStr;
+  const fullStr = removeSpaces(typeNameParam.toLowerCase().trim());
+
+  // search for subStr within fullStr
+  const requestObject = requestTypes.find(request => {
+    subStr = removeSpaces(request.typeName.toLowerCase().trim());
+    return fullStr.indexOf(subStr) >= 0;
+  });
+
+  // return the typeId of the request with matching typeNameParam or undefined if not found
+  return requestObject?.typeId;
+}
 
 /*
   Given an object of counts, e.g. --
