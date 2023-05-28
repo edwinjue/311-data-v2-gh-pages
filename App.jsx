@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'proptypes';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getMetadataRequest } from '@reducers/metadata';
 import { toggleMenu as reduxToggleMenu } from '@reducers/ui';
@@ -35,7 +35,7 @@ const App = ({
   // });
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Header />
       <Routes />
       {/* area where you can swipe the menu sidebar */}
@@ -43,7 +43,7 @@ const App = ({
       {/* <div {...handleSwipeMenu} style={menuStyles.swipeAreaOpen} /> */}
       <Footer />
       <RouteChange />
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
