@@ -40,13 +40,13 @@ export default function Routes() {
       <ThemeProvider theme={theme}>
         <Paper elevation={0}>
           <Switch>
-            <Route path="/dashboard" component={Dashboard} />
-            <Route path="/privacy" component={Privacy} />
-            <Route path="/faqs" component={Faqs} />
-            <Route path="/research" component={Research} />
-            <Route path="/about" component={About} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/">
+            <Route path="/311-data-v2-gh-pages/dashboard" component={Dashboard} />
+            <Route path="/311-data-v2-gh-pages/privacy" component={Privacy} />
+            <Route path="/311-data-v2-gh-pages/faqs" component={Faqs} />
+            <Route path="/311-data-v2-gh-pages/research" component={Research} />
+            <Route path="/311-data-v2-gh-pages/about" component={About} />
+            <Route path="/311-data-v2-gh-pages/contact" component={Contact} />
+            <Route path="/311-data-v2-gh-pages/">
               <Redirect to={`map${search}`} />
             </Route>
           </Switch>
