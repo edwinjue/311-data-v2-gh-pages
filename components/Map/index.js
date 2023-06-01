@@ -16,6 +16,9 @@ import CookieNotice from '../main/CookieNotice';
 import Map from './Map';
 import moment from 'moment';
 import gif from '@assets/loading.gif'
+import duckdb from 'duckdb';
+
+const db = new duckdb.Database('./db/master.duckdb');
 
 // We make API requests on a per-day basis. On average, there are about 4k
 // requests per day, so 10k is a large safety margin.
@@ -247,9 +250,12 @@ class MapContainer extends React.Component {
    * @returns An array of Promises, each representing an API request for a
    * particular day in the input date range.
    */
+
+  // TODO A: 1/2 remove code between /* */ when TODO B is working (getAllRequests)
+  /*
   getAllRequests = (startDate, endDate) => {
     const datesInRange = this.getDatesInRange(startDate, endDate);
-    const url = `${process.env.SOCRATA_API_URL}?$where=` + encodeURI(`createddate between '${startDate}' and '${endDate}'`) +`&$limit=${REQUEST_LIMIT}&$$app_token=${process.env.SOCRATA_TOKEN}`
+    // const url = `${process.env.SOCRATA_API_URL}?$where=` + encodeURI(`createddate between '${startDate}' and '${endDate}'`) +`&$limit=${REQUEST_LIMIT}&$$app_token=${process.env.SOCRATA_TOKEN}`
     // console.log(`url: ${url}`)
     
     var requests = [];
@@ -263,7 +269,7 @@ class MapContainer extends React.Component {
     requests.push(axios.get(url));
     return requests;
   };
-
+  */
   setData = async () => {
     const { startDate, endDate, getDataRedux } = this.props;
 
@@ -273,6 +279,9 @@ class MapContainer extends React.Component {
     }
     getDataRedux();
     this.rawRequests = [];
+
+    // TODO A: 2/2 remove code between /* */ when TODO B is working
+    /*
     var allRequestPromises = [];
     for (const missingDateRange of missingDateRanges){
       const requestPromises = this.getAllRequests(missingDateRange[0],
@@ -282,8 +291,23 @@ class MapContainer extends React.Component {
     await Promise.all(allRequestPromises.flat()).then(responses => {
       responses.forEach(response => this.rawRequests.push(...response.data))
     });
+    */
+
+    // TODO B: assign results of duckdb query to this.rawRequests
+    this.rawRequests = await db.all(`SELECT * FROM requests WHERE createddate between '${startDate}' and '${endDate}' LIMIT ${REQUEST_LIMIT}`, (err, res) => {
+      try {
+        if (err) {
+          throw err;
+        }
+        console.log(res)
+        return res
+      } catch (e) {
+        console.error('Error occured:', e);
+      }
+    });
 
     console.log(`this.rawRequests.length: ${this.rawRequests.length}`)
+    console.log(this.rawRequests)
     if(this.rawRequests.length > 0 )
       // console.log(`this.rawRequests[0]: `, this.rawRequests[0])
 

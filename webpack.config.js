@@ -14,6 +14,7 @@ module.exports = {
     // path: '.',
     filename: 'bundle.js',
   },
+  target: 'node',
   watchOptions: {
     ignored: /node_modules/,
   },
