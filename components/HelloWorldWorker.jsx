@@ -1,22 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Worker from './duckdb.worker';
 
 const HelloWorldWorker = () => {
+  const [result, setResult] = useState('');
+
+  const worker = new Worker();
+  worker.onmessage = event => {
+    console.log('HelloWorldWorldWorker, inside worker.onmessage: event.data = ', JSON.stringify(event.data));
+    setResult(JSON.stringify(event.data));
+  };
+
   // Initialize component.
   useEffect(() => {
     console.log('HelloWorldWorldWorker, useEffect called. Initializing worker.');
-    const worker = new Worker();
-    worker.onmessage = event => {
-      console.log('HelloWorldWorldWorker, inside worker.onmessage: event.data = ', JSON.stringify(event.data));
-      const result = document.getElementById('result');
-      result.innerText = JSON.stringify(event.data);
-    };
   }, []);
 
   // Event handlers.
   const handleClick = () => {
     console.log('HelloWorldWorldWorker, handlClick called.');
-    const worker = new Worker();
     console.log('HelloWorldWorldWorker, calling worker.postMessage({ postMessage: true })');
     worker.postMessage({
       postMessage: true,
@@ -27,7 +28,9 @@ const HelloWorldWorker = () => {
   return (
     <>
       <button type="button" id="button" onClick={handleClick}>Click me</button>
-      <div id="result" />
+      <div id="result">
+        {result}
+      </div>
     </>
   );
 };
