@@ -1,7 +1,7 @@
 const Dotenv = require('dotenv-webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const SocialTags = require('social-tags-webpack-plugin');
 
@@ -35,7 +35,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.worker\.js$/,
+        test: /\.worker\.(js|cjs|mjs)$/,
         use: { loader: "worker-loader" },
       },
       {
@@ -106,11 +106,11 @@ module.exports = {
         description,
       },
     }),
-    // new CopyWebpackPlugin({
-    //   patterns: [
-    //     { from: 'public/404.html', to: '404.html' },
-    //   ],
-    // }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public', to: 'dist' },
+      ],
+    }),
     new MiniCssExtractPlugin({
       filename: '[name].css',
     }),
