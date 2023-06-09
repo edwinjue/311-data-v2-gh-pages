@@ -2,6 +2,10 @@ import React, { useEffect } from 'react';
 import * as duckdb from '@duckdb/duckdb-wasm';
 import Worker from 'web-worker';
 
+const hostname = process.env.NODE_ENV === 'production'
+  ? 'https://edwinjue.github.io/311-data-v2-gh-pages'
+  : 'http://localhost:3000';
+
 const DuckDbHelloWorld = () => {
   useEffect(() => {
     (async () => {
@@ -17,18 +21,53 @@ const DuckDbHelloWorld = () => {
           },
         });
 
+        // Initialize a new duckdb instance
         const logger = new duckdb.ConsoleLogger();
         const worker = new Worker(DUCKDB_CONFIG.mainWorker);
         const db = new duckdb.AsyncDuckDB(logger, worker);
         await db.instantiate(DUCKDB_CONFIG.mainModule, DUCKDB_CONFIG.pthreadWorker);
 
-        const conn = await db.connect();
-        const table = await conn.query('SELECT * FROM generate_series(0, 100)');
-        console.table(table.toArray());
+        //
+        // db.registerFileURL, parameter 3 values:
+        /*
+          BUFFER = 0,
+          NODE_FS = 1,
+          BROWSER_FILEREADER = 2,
+          BROWSER_FSACCESS = 3,
+          HTTP = 4,
+          S3 = 5,
+        */
+        await db.registerFileURL('requests.parquet', `${hostname}/requests.parquet`, 4); // HTTP = 4
+        // https://github.com/duckdb/duckdb-wasm/blob/2564ea459787d56b5345f6d25f370ac7132c3b17/packages/duckdb-wasm/src/bindings/runtime.ts#LL38C1-L45C2
 
-        await conn.close();
-        await db.terminate();
-        await worker.terminate();
+        // Create db connection
+        const conn = await db.connect();
+
+        // Create the 'requests' table.
+        const createSQL = 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+        await conn.query(createSQL);
+
+        // Execute a SELECT query from 'requests' table
+        const selectSQL = 'SELECT * FROM requests limit 10';
+        const requests = await conn.query(selectSQL);
+
+        // console.table(requests.toArray()); // output requests of SELECT query
+
+        // const firstRow = requests.get(0); // output the first row of requests
+        // console.log(firstRow.toArray())
+
+        console.log(`query: ${selectSQL}`);
+
+        const data = [];
+        const nRequests = requests.toArray().length;
+        for (let i = 0; i < nRequests; i++) {
+          data.push(requests.get(i).toArray());
+        }
+        console.log('results: ', data);
+
+        if (conn) await conn.close();
+        if (db) await db.terminate();
+        if (worker) await worker.terminate();
       } catch (e) {
         console.error(e);
       }
