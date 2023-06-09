@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import * as duckdb from "@duckdb/duckdb-wasm";
 import Worker from "web-worker";
+import ddbh from "@utils/duckDbHelpers.js";
 
 const { protocol, host } = window.location;
 const hostname =
@@ -61,6 +62,10 @@ const DuckDbHelloWorld = () => {
         // Execute a SELECT query from 'requests' table
         const selectSQL = "SELECT * FROM requests limit 10";
         const requests = await conn.query(selectSQL);
+        const fields = ddbh.getTableSchema(requests);
+        console.log({ fields });
+
+        const nRequests = ddbh.getTableCount(requests);
 
         // console.table(requests.toArray()); // output requests of SELECT query
 
@@ -70,7 +75,6 @@ const DuckDbHelloWorld = () => {
         console.log(`query: ${selectSQL}`);
 
         const data = [];
-        const nRequests = requests.toArray().length;
         for (let i = 0; i < nRequests; i++) {
           data.push(requests.get(i).toArray());
         }
