@@ -27,7 +27,7 @@ const DuckDbHelloWorld = () => {
         const db = new duckdb.AsyncDuckDB(logger, worker);
         await db.instantiate(DUCKDB_CONFIG.mainModule, DUCKDB_CONFIG.pthreadWorker);
 
-        //
+        // Load parquet file from URL via HTTP and register it to a file buffer named 'requests.parquet'
         // db.registerFileURL, parameter 3 values:
         /*
           BUFFER = 0,
