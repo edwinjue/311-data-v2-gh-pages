@@ -40,14 +40,15 @@ const DuckDbHelloWorld = () => {
           BROWSER_FILEREADER = 2,
           BROWSER_FSACCESS = 3,
           HTTP = 4,
-          S3 = 5,
+          S3 = 5, 
         */
+        // https://tinyurl.com/DuckDBDataProtocol
+
         await db.registerFileURL(
           "requests.parquet",
           `${hostname}/requests.parquet`,
-          4
-        ); // HTTP = 4
-        // https://github.com/duckdb/duckdb-wasm/blob/2564ea459787d56b5345f6d25f370ac7132c3b17/packages/duckdb-wasm/src/bindings/runtime.ts#LL38C1-L45C2
+          4 // HTTP = 4
+        );
 
         // Create db connection
         const conn = await db.connect();
