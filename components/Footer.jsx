@@ -1,19 +1,19 @@
-import React from "react";
-import { connect } from "react-redux";
-import PropTypes from "proptypes";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
-import moment from "moment";
-import { Link } from "react-router-dom";
-import SocialMediaLinks from "./SocialMediaLinks";
+import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'proptypes';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+import moment from 'moment';
+import { Link } from 'react-router-dom';
+import SocialMediaLinks from './SocialMediaLinks';
 
 // Footer should make use of style overrides to look the same regardless of light/dark theme.
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   footer: {
-    position: "fixed",
+    position: 'fixed',
     bottom: 0,
     height: theme.footer.height,
-    width: "100%",
+    width: '100%',
     backgroundColor: theme.palette.primary.dark,
     zIndex: 1,
   },
@@ -31,19 +31,19 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.dark,
   },
   container: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     margin: theme.spacing(0, 2, 0),
   },
   copyrightContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   link: {
     color: theme.palette.text.dark,
-    textDecoration: "none",
+    textDecoration: 'none',
   },
 }));
 
@@ -71,7 +71,7 @@ const Footer = ({ lastUpdated }) => {
           <div>
             <Typography variant="body2" className={classes.lastUpdated}>
               Data last updated&nbsp;
-              {moment(lastUpdated).format("MM/DD/YY")}
+              {moment(lastUpdated).format('MM/DD/YY')}
             </Typography>
           </div>
           <div>
@@ -83,7 +83,7 @@ const Footer = ({ lastUpdated }) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   lastUpdated: state.metadata.lastPulledLocal,
 });
 

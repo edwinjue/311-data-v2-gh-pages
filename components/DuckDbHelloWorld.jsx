@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
-import * as duckdb from "@duckdb/duckdb-wasm";
-import Worker from "web-worker";
-import ddbh from "@utils/duckDbHelpers.js";
+import React, { useEffect } from 'react';
+import * as duckdb from '@duckdb/duckdb-wasm';
+import Worker from 'web-worker';
+import ddbh from '@utils/duckDbHelpers.js';
 
 const { protocol, host } = window.location;
-const hostname =
-  process.env.NODE_ENV === "production"
-    ? process.env.PUBLIC_URL // homepage property in package.json
-    : `${protocol}//${host}`;
+const hostname = process.env.NODE_ENV === 'production'
+  ? process.env.PUBLIC_URL // homepage property in package.json
+  : `${protocol}//${host}`;
 
 const DuckDbHelloWorld = () => {
   useEffect(() => {
@@ -15,12 +14,12 @@ const DuckDbHelloWorld = () => {
       try {
         const DUCKDB_CONFIG = await duckdb.selectBundle({
           mvp: {
-            mainModule: "./duckdb.wasm",
-            mainWorker: "./duckdb-browser.worker.js",
+            mainModule: './duckdb.wasm',
+            mainWorker: './duckdb-browser.worker.js',
           },
           eh: {
-            mainModule: "./duckdb-eh.wasm",
-            mainWorker: "./duckdb-browser-eh.worker.js",
+            mainModule: './duckdb-eh.wasm',
+            mainWorker: './duckdb-browser-eh.worker.js',
           },
         });
 
@@ -30,10 +29,10 @@ const DuckDbHelloWorld = () => {
         const db = new duckdb.AsyncDuckDB(logger, worker);
         await db.instantiate(
           DUCKDB_CONFIG.mainModule,
-          DUCKDB_CONFIG.pthreadWorker
+          DUCKDB_CONFIG.pthreadWorker,
         );
 
-        // Load parquet file from URL via HTTP and register it to a file buffer named 'requests.parquet'
+        // Load parquet file from URL via HTTP and register it to 'requests.parquet'
         // db.registerFileURL, third parameter values:
         /*
           BUFFER = 0,
@@ -41,44 +40,37 @@ const DuckDbHelloWorld = () => {
           BROWSER_FILEREADER = 2,
           BROWSER_FSACCESS = 3,
           HTTP = 4,
-          S3 = 5, 
+          S3 = 5,
         */
         // https://tinyurl.com/DuckDBDataProtocol
 
         await db.registerFileURL(
-          "requests.parquet",
+          'requests.parquet',
           `${hostname}/requests.parquet`,
-          4 // HTTP = 4
+          4, // HTTP = 4
         );
 
         // Create db connection
         const conn = await db.connect();
 
         // Create the 'requests' table.
-        const createSQL =
-          'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+        const createSQL = 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
         await conn.query(createSQL);
 
         // Execute a SELECT query from 'requests' table
-        const selectSQL = "SELECT * FROM requests limit 10";
+        const selectSQL = 'SELECT * FROM requests limit 10';
+        console.log(`query: ${selectSQL}`);
+
         const requests = await conn.query(selectSQL);
         const fields = ddbh.getTableSchema(requests);
         console.log({ fields });
 
-        const nRequests = ddbh.getTableCount(requests);
-
         // console.table(requests.toArray()); // output requests of SELECT query
-
         // const firstRow = requests.get(0); // output the first row of requests
         // console.log(firstRow.toArray())
 
-        console.log(`query: ${selectSQL}`);
-
-        const data = [];
-        for (let i = 0; i < nRequests; i++) {
-          data.push(requests.get(i).toArray());
-        }
-        console.log("results: ", data);
+        const data = ddbh.getTableData(requests);
+        console.log('results: ', data);
 
         if (conn) await conn.close();
         if (db) await db.terminate();

@@ -9,7 +9,7 @@ const settings = {
     },
     eventName: {
       // to keep event handler names consistent throughout our codebase
-      reset: "reset",
+      reset: 'reset',
     },
   },
 };
