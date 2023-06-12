@@ -14,10 +14,11 @@ function removeSpaces(str) {
 
 export function getTypeIdFromTypeName(typeNameParam = '') {
   // early return null if we have invalid criteria
-  if (!!typeNameParam === false
-      || typeof typeNameParam !== 'string'
-      || !!requestTypes === false
-      || requestTypes.length === 0
+  if (
+    !!typeNameParam === false
+    || typeof typeNameParam !== 'string'
+    || !!requestTypes === false
+    || requestTypes.length === 0
   ) {
     return null;
   }
@@ -89,4 +90,36 @@ export const toggleBoundaries = () => {
   const button = document.getElementById('boundaries');
   const event = new Event('click', { bubbles: true });
   button.dispatchEvent(event);
+};
+
+// helper to create a javascript object from a key array and values array
+// Example:
+//  keys = [a,b,c]
+//  vals = [1,2,3]
+//
+//  obj = createObjFromArrays({keysArray: keys, valArray: vals})
+//
+//  obj will be {a: 1, b: 2, c: 3}
+
+export const createObjFromArrays = ({ keyArray = [], valArray = [] }) => {
+  try {
+    if (
+      !!keyArray === false
+      || !!valArray === false
+      || keyArray.length === 0
+      || valArray.length === 0
+    ) {
+      throw new Error('missing required parameters in function call');
+    }
+
+    const obj = valArray.reduce((acc, curr, i) => {
+      acc[keyArray[i]] = curr;
+      return acc;
+    }, {});
+
+    return obj;
+  } catch (e) {
+    console.error('createObjFromArrays: Error occurred: ', e);
+    return undefined;
+  }
 };

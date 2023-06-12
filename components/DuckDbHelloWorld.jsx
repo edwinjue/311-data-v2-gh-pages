@@ -3,10 +3,10 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 import Worker from 'web-worker';
 import ddbh from '@utils/duckDbHelpers.js';
 
-const { protocol, host } = window.location;
-const hostname = process.env.NODE_ENV === 'production'
-  ? process.env.PUBLIC_URL // homepage property in package.json
-  : `${protocol}//${host}`;
+// const { protocol, host } = window.location;
+// const hostname = process.env.NODE_ENV === 'production'
+// ? process.env.PUBLIC_URL // homepage property in package.json
+// : `${protocol}//${host}`;
 
 const DuckDbHelloWorld = () => {
   useEffect(() => {
@@ -46,7 +46,8 @@ const DuckDbHelloWorld = () => {
 
         await db.registerFileURL(
           'requests.parquet',
-          `${hostname}/requests.parquet`,
+          // `${hostname}/requests.parquet`,  // use dataset uploaded to 'public'
+          'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // use huggingface dataset
           4, // HTTP = 4
         );
 
@@ -60,17 +61,14 @@ const DuckDbHelloWorld = () => {
         // Execute a SELECT query from 'requests' table
         const selectSQL = 'SELECT * FROM requests limit 10';
         console.log(`query: ${selectSQL}`);
-
         const requests = await conn.query(selectSQL);
-        const fields = ddbh.getTableSchema(requests);
-        console.log({ fields });
 
-        // console.table(requests.toArray()); // output requests of SELECT query
-        // const firstRow = requests.get(0); // output the first row of requests
-        // console.log(firstRow.toArray())
+        // Display table headers
+        const requestsHeaders = ddbh.getTableHeaders(requests);
+        console.log({ requestsHeaders });
 
-        const data = ddbh.getTableData(requests);
-        console.log('results: ', data);
+        const requestsData = ddbh.getTableData(requests);
+        console.log('results: ', requestsData);
 
         if (conn) await conn.close();
         if (db) await db.terminate();
