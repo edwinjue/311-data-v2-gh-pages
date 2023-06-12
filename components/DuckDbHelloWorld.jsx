@@ -23,6 +23,7 @@ const DuckDbHelloWorld = () => {
   useEffect(() => {
     (async () => {
       try {
+        const startTime = performance.now();
         const DUCKDB_CONFIG = await duckdb.selectBundle({
           mvp: {
             mainModule: './duckdb.wasm',
@@ -71,11 +72,7 @@ const DuckDbHelloWorld = () => {
         const selectSQL = 'SELECT * FROM requests limit 10';
         console.log(`query: ${selectSQL}`);
 
-        const startTime = performance.now();
         const requests = await conn.query(selectSQL);
-        const endTime = performance.now();
-
-        console.log(`Time taken: ${endTime - startTime}ms`);
 
         // Display table headers
         const requestsHeaders = ddbh.getTableHeaders(requests);
@@ -83,6 +80,10 @@ const DuckDbHelloWorld = () => {
 
         const requestsData = ddbh.getTableData(requests);
         console.log('results: ', requestsData);
+
+        const endTime = performance.now();
+
+        console.log(`Time taken: ${endTime - startTime}ms`);
 
         if (conn) await conn.close();
         if (db) await db.terminate();
