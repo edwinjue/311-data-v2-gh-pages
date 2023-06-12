@@ -3,10 +3,21 @@ import * as duckdb from '@duckdb/duckdb-wasm';
 import Worker from 'web-worker';
 import ddbh from '@utils/duckDbHelpers.js';
 
-// const { protocol, host } = window.location;
-// const hostname = process.env.NODE_ENV === 'production'
-// ? process.env.PUBLIC_URL // homepage property in package.json
-// : `${protocol}//${host}`;
+const { protocol, host } = window.location;
+const hostname = process.env.NODE_ENV === 'production'
+  ? process.env.PUBLIC_URL // homepage property in package.json
+  : `${protocol}//${host}`;
+
+// List of remote dataset locations used by db.registerFileURL
+const datasets = {
+  // this project's 'public' folder
+  ghYtd: `${hostname}/requests.parquet`,
+  // huggingface
+  hfYtd:
+    'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
+  hfLastMonth:
+    'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
+};
 
 const DuckDbHelloWorld = () => {
   useEffect(() => {
@@ -43,11 +54,9 @@ const DuckDbHelloWorld = () => {
           S3 = 5,
         */
         // https://tinyurl.com/DuckDBDataProtocol
-
         await db.registerFileURL(
           'requests.parquet',
-          // `${hostname}/requests.parquet`,  // use dataset uploaded to 'public'
-          'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // use huggingface dataset
+          datasets.hfYtd,
           4, // HTTP = 4
         );
 
@@ -61,7 +70,12 @@ const DuckDbHelloWorld = () => {
         // Execute a SELECT query from 'requests' table
         const selectSQL = 'SELECT * FROM requests limit 10';
         console.log(`query: ${selectSQL}`);
+
+        const startTime = performance.now();
         const requests = await conn.query(selectSQL);
+        const endTime = performance.now();
+
+        console.log(`Time taken: ${endTime - startTime}ms`);
 
         // Display table headers
         const requestsHeaders = ddbh.getTableHeaders(requests);
