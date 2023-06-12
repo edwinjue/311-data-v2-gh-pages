@@ -44,21 +44,10 @@ const DuckDbHelloWorld = () => {
           DUCKDB_CONFIG.pthreadWorker,
         );
 
-        // Load parquet file from URL via HTTP and register it to 'requests.parquet'
-        // db.registerFileURL, third parameter values:
-        /*
-          BUFFER = 0,
-          NODE_FS = 1,
-          BROWSER_FILEREADER = 2,
-          BROWSER_FSACCESS = 3,
-          HTTP = 4,
-          S3 = 5,
-        */
-        // https://tinyurl.com/DuckDBDataProtocol
         await db.registerFileURL(
           'requests.parquet',
           datasets.hfYtd,
-          4, // HTTP = 4
+          4, // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
         );
 
         // Create db connection
