@@ -1,30 +1,51 @@
 /* eslint-disable */
 
-import React from "react";
-import PropTypes from "proptypes";
-import { connect } from "react-redux";
-import { withStyles } from "@material-ui/core/styles";
-import axios from "axios";
+import React from 'react';
+import PropTypes from 'proptypes';
+import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
+import axios from 'axios';
 import {
   getDataRequest,
   getDataRequestSuccess,
   updateDateRanges,
-} from "@reducers/data";
+} from '@reducers/data';
 import {
   updateStartDate,
   updateEndDate,
   updateNcId,
   updateRequestTypes,
-} from "@reducers/filters";
-import { updateMapPosition } from "@reducers/ui";
-import { trackMapExport } from "@reducers/analytics";
-import { INTERNAL_DATE_SPEC } from "../common/CONSTANTS";
-import { getTypeIdFromTypeName } from "@utils";
-import CookieNotice from "../main/CookieNotice";
+} from '@reducers/filters';
+import { updateMapPosition } from '@reducers/ui';
+import { trackMapExport } from '@reducers/analytics';
+import { INTERNAL_DATE_SPEC } from '../common/CONSTANTS';
+import { getTypeIdFromTypeName } from '@utils';
+import CookieNotice from '../main/CookieNotice';
 // import "mapbox-gl/dist/mapbox-gl.css";
-import Map from "./Map";
-import moment from "moment";
-import gif from "@assets/loading.gif";
+import Map from './Map';
+import moment from 'moment';
+import gif from '@assets/loading.gif';
+
+import * as duckdb from '@duckdb/duckdb-wasm';
+import Worker from 'web-worker';
+import ddbh from '@utils/duckDbHelpers.js';
+
+const { protocol, host } = window.location;
+const hostname =
+  process.env.NODE_ENV === 'production'
+    ? process.env.PUBLIC_URL // homepage property in package.json
+    : `${protocol}//${host}`;
+
+// List of remote dataset locations used by db.registerFileURL
+const datasets = {
+  // this project's 'public' folder
+  ghYtd: `${hostname}/requests.parquet`,
+  // huggingface
+  hfYtd:
+    'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
+  hfLastMonth:
+    'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
+};
 
 // We make API requests on a per-day basis. On average, there are about 4k
 // requests per day, so 10k is a large safety margin.
@@ -48,7 +69,7 @@ class MapContainer extends React.Component {
       selectedTypes: this.getSelectedTypes(),
     };
 
-    // We store the raw requests from the API call here, but eventually they are
+    // We store the raw requests from the API call here, but eventually they aremap/inde
     // converted and stored in the Redux store.
     this.rawRequests = [];
     this.isSubscribed = null;
@@ -94,11 +115,11 @@ class MapContainer extends React.Component {
     } = this.props;
 
     // Filter requests on time
-    const dateFormat = "YYYY-MM-DD";
+    const dateFormat = 'YYYY-MM-DD';
     // TODO: Check if endDate > startDate
     if (
-      moment(this.initialState.startDate, "YYYY-MM-DD", true).isValid() &&
-      moment(this.initialState.endDate, "YYYY-MM-DD", true).isValid()
+      moment(this.initialState.startDate, 'YYYY-MM-DD', true).isValid() &&
+      moment(this.initialState.endDate, 'YYYY-MM-DD', true).isValid()
     ) {
       const formattedStart = moment(this.initialState.startDate).format(
         dateFormat
@@ -111,7 +132,7 @@ class MapContainer extends React.Component {
     }
 
     for (let request_id = 1; request_id < 13; request_id++) {
-      if (this.initialState[`rtId${request_id}`] == "false") {
+      if (this.initialState[`rtId${request_id}`] == 'false') {
         dispatchUpdateTypesFilter(request_id);
       }
     }
@@ -143,7 +164,7 @@ class MapContainer extends React.Component {
       // subtract 1 day from startB, since it's already included in A.
       const leftNonOverlapEnd =
         momentStartB < momentEndA
-          ? momentStartB.subtract(1, "days")
+          ? momentStartB.subtract(1, 'days')
           : momentEndA;
       leftNonOverlap = [startA, leftNonOverlapEnd.format(INTERNAL_DATE_SPEC)];
     }
@@ -151,7 +172,7 @@ class MapContainer extends React.Component {
     // not overlap with B.
     if (momentEndB < momentEndA) {
       var rightNonOverlapStart =
-        momentEndB < momentStartA ? momentStartA : momentEndB.add(1, "days");
+        momentEndB < momentStartA ? momentStartA : momentEndB.add(1, 'days');
       rightNonOverlap = [rightNonOverlapStart.format(INTERNAL_DATE_SPEC), endA];
     }
     return [leftNonOverlap, rightNonOverlap];
@@ -236,7 +257,7 @@ class MapContainer extends React.Component {
       }
       // Check if the current date range is adjacent to the next date range.
       if (
-        moment(currentEnd).add(1, "days").valueOf() ===
+        moment(currentEnd).add(1, 'days').valueOf() ===
         moment(dateRange[0]).valueOf()
       ) {
         // Extend the current date range to include the next date range.
@@ -266,7 +287,7 @@ class MapContainer extends React.Component {
     const endDateMoment = moment(endDate, INTERNAL_DATE_SPEC);
     while (currentDateMoment <= endDateMoment) {
       dateArray.push(currentDateMoment.format(INTERNAL_DATE_SPEC));
-      currentDateMoment = currentDateMoment.add(1, "days");
+      currentDateMoment = currentDateMoment.add(1, 'days');
     }
     return dateArray;
   };
@@ -282,8 +303,8 @@ class MapContainer extends React.Component {
    * @returns An array of Promises, each representing an API request for a
    * particular day in the input date range.
    */
-  getAllRequests = (startDate, endDate) => {
-    const datesInRange = this.getDatesInRange(startDate, endDate);
+  socrataGetAllRequests = (startDate, endDate) => {
+    // const datesInRange = this.getDatesInRange(startDate, endDate);
     const url =
       `${process.env.SOCRATA_API_URL}?$where=` +
       encodeURI(`createddate between '${startDate}' and '${endDate}'`) +
@@ -302,7 +323,82 @@ class MapContainer extends React.Component {
     return requests;
   };
 
-  setData = async () => {
+  duckDbGetAllRequests = async (startDate, endDate) => {
+    //TODO: to boost performance, need to move initialization of duckdb to the constructor
+    // and the cleanup to component destructor. Otherwise we will recreate a db
+    // instance every time end user updates the date range which is super slow
+    //
+    // designed this way for now just as a proof of concept to get request data
+    // to show up on map
+    try {
+      const startTime = performance.now(); // start benchmark
+      const DUCKDB_CONFIG = await duckdb.selectBundle({
+        mvp: {
+          mainModule: './duckdb.wasm',
+          mainWorker: './duckdb-browser.worker.js',
+        },
+        eh: {
+          mainModule: './duckdb-eh.wasm',
+          mainWorker: './duckdb-browser-eh.worker.js',
+        },
+      });
+
+      // Initialize a new duckdb instance
+      const logger = new duckdb.ConsoleLogger();
+      const worker = new Worker(DUCKDB_CONFIG.mainWorker);
+      const db = new duckdb.AsyncDuckDB(logger, worker);
+      await db.instantiate(
+        DUCKDB_CONFIG.mainModule,
+        DUCKDB_CONFIG.pthreadWorker
+      );
+
+      await db.registerFileURL(
+        'requests.parquet',
+        datasets.hfYtd,
+        4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
+      );
+
+      // Create db connection
+      const conn = await db.connect();
+
+      // Create the 'requests' table.
+      const createSQL =
+        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+      await conn.query(createSQL);
+
+      // Execute a SELECT query from 'requests' table
+      const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
+      console.log(`query: ${selectSQL}`);
+
+      const requests = await conn.query(selectSQL);
+
+      // Display table headers
+      const requestsHeaders = ddbh.getTableHeaders(requests);
+      console.log({ requestsHeaders });
+
+      const requestsData = ddbh.getTableData(requests);
+      console.log('results: ', requestsData);
+
+      const endTime = performance.now(); // end bnechmark
+
+      console.log(`Time taken: ${endTime - startTime}ms`);
+
+      if (conn) await conn.close();
+      if (db) await db.terminate();
+      if (worker) await worker.terminate();
+
+      return requestsData;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  getAllRequests = async (startDate, endDate) => {
+    const requests = await this.duckDbGetAllRequests(startDate, endDate);
+    return requests;
+  };
+
+  socrataSetData = async () => {
     const { startDate, endDate, getDataRedux } = this.props;
 
     const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
@@ -336,9 +432,28 @@ class MapContainer extends React.Component {
     }
   };
 
-  convertRequests = (requests) =>
+  duckDbSetData = async () => {
+    const { startDate, endDate, getDataRedux } = this.props;
+    this.rawRequests = await this.getAllRequests(startDate, endDate);
+    if (this.isSubscribed) {
+      const { getDataSuccess, updateDateRangesWithRequests } = this.props;
+      const convertedRequests = this.convertRequests(this.rawRequests);
+
+      console.log({ convertedRequests });
+      getDataSuccess(convertedRequests);
+      //   const newDateRangesWithRequests =
+      //   this.resolveDateRanges(missingDateRanges);
+      // updateDateRangesWithRequests(newDateRangesWithRequests);
+    }
+  };
+
+  setData = async () => {
+    await this.duckDbSetData();
+  };
+
+  socrataConvertRequests = (requests) =>
     requests.map((request) => ({
-      type: "Feature",
+      type: 'Feature',
       properties: {
         requestId: request.srnumber,
         typeId: getTypeIdFromTypeName(request.requesttype),
@@ -348,10 +463,32 @@ class MapContainer extends React.Component {
         createdDateMs: moment(request.createdDate).valueOf(),
       },
       geometry: {
-        type: "Point",
+        type: 'Point',
         coordinates: [request.longitude, request.latitude],
       },
     }));
+
+  duckDbConvertRequests = (requests) =>
+    requests.map((request) => {
+      // Be careful, request properties are case-sensitive
+      return {
+        type: 'Feature',
+        properties: {
+          requestId: request.SRNumber,
+          typeId: getTypeIdFromTypeName(request.RequestType),
+          closedDate: request.ClosedDate,
+          // Store this in milliseconds so that it's easy to do date comparisons
+          // using Mapbox GL JS filters.
+          createdDateMs: moment(request.CreatedDate).valueOf(),
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: [request.Longitude, request.Latitude],
+        },
+      };
+    });
+
+  convertRequests = (requests) => this.duckDbConvertRequests(requests);
 
   // TODO: fix this
   getSelectedTypes = () => {
@@ -392,7 +529,7 @@ class MapContainer extends React.Component {
             style={{
               width: window.innerWidth,
               height: 16,
-              position: "absolute",
+              position: 'absolute',
             }}
             src={gif}
           />
