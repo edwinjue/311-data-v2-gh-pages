@@ -23,7 +23,7 @@ const DuckDbHelloWorld = () => {
   useEffect(() => {
     (async () => {
       try {
-        const startTime = performance.now();
+        const startTime = performance.now(); // start benchmark
         const DUCKDB_CONFIG = await duckdb.selectBundle({
           mvp: {
             mainModule: './duckdb.wasm',
@@ -70,7 +70,7 @@ const DuckDbHelloWorld = () => {
         const requestsData = ddbh.getTableData(requests);
         console.log('results: ', requestsData);
 
-        const endTime = performance.now();
+        const endTime = performance.now(); // end bnechmark
 
         console.log(`Time taken: ${endTime - startTime}ms`);
 
