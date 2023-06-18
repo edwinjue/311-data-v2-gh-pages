@@ -70,7 +70,7 @@
     "react-swipeable": "^6.0.1",
     "react-test-renderer": "^16.12.0",
     "react-toastify": "^9.0.8",
-    "react-vis": "^1.11.7",
+    "react-vis": "^1.12.1",
     "redux": "^4.0.4",
     "redux-devtools-extension": "^2.13.8",
     "redux-logger": "^3.0.6",

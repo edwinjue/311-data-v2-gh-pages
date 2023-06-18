@@ -73,17 +73,20 @@ class MapContainer extends React.Component {
     // converted and stored in the Redux store.
     this.rawRequests = [];
     this.isSubscribed = null;
-
+    this.worker = null;
+    this.db = null;
+    this.conn = null;
     this.initialState = props.initialState;
   }
 
-  componentDidMount(props) {
-    this.processSearchParams();
+  async componentDidMount(props) {
     this.isSubscribed = true;
-    this.setData();
+    this.processSearchParams();
+    await this.dbInitialize();
+    await this.setData();
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     const { activeMode, pins, startDate, endDate } = this.props;
     function didDateRangeChange() {
       // Check that endDate is not null since we only want to retrieve data
@@ -98,13 +101,63 @@ class MapContainer extends React.Component {
       prevProps.pins !== pins ||
       didDateRangeChange()
     ) {
-      this.setData();
+      await this.setData();
     }
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     this.isSubscribed = false;
+    await this.dbTearDown();
   }
+
+  dbInitialize = async () => {
+    try {
+      const DUCKDB_CONFIG = await duckdb.selectBundle({
+        mvp: {
+          mainModule: './duckdb.wasm',
+          mainWorker: './duckdb-browser.worker.js',
+        },
+        eh: {
+          mainModule: './duckdb-eh.wasm',
+          mainWorker: './duckdb-browser-eh.worker.js',
+        },
+      });
+
+      // Initialize a new duckdb instance
+      const logger = new duckdb.ConsoleLogger();
+      this.worker = new Worker(DUCKDB_CONFIG.mainWorker);
+      this.db = new duckdb.AsyncDuckDB(logger, this.worker);
+      await this.db.instantiate(
+        DUCKDB_CONFIG.mainModule,
+        DUCKDB_CONFIG.pthreadWorker
+      );
+
+      await this.db.registerFileURL(
+        'requests.parquet',
+        datasets.hfYtd,
+        4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
+      );
+      // Create db connection
+      this.conn = await this.db.connect();
+
+      // Create the 'requests' table.
+      const createSQL =
+        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+      await this.conn.query(createSQL);
+    } catch (e) {
+      console.error('Map/index.js: Error occurred: ', e);
+    }
+  };
+
+  dbTearDown = async () => {
+    try {
+      if (this.db) await this.db.terminate();
+      if (this.conn) await this.conn.close();
+      if (this.worker) await this.worker.terminate();
+    } catch (e) {
+      console.error('Map/index.js: Error occurred: ', e);
+    }
+  };
 
   processSearchParams = () => {
     // Dispatch to edit Redux store with url search params
@@ -324,69 +377,25 @@ class MapContainer extends React.Component {
   };
 
   duckDbGetAllRequests = async (startDate, endDate) => {
-    //TODO: to boost performance, need to move initialization of duckdb to the constructor
-    // and the cleanup to component destructor. Otherwise we will recreate a db
-    // instance every time end user updates the date range which is super slow
-    //
-    // designed this way for now just as a proof of concept to get request data
-    // to show up on map
     try {
-      const startTime = performance.now(); // start benchmark
-      const DUCKDB_CONFIG = await duckdb.selectBundle({
-        mvp: {
-          mainModule: './duckdb.wasm',
-          mainWorker: './duckdb-browser.worker.js',
-        },
-        eh: {
-          mainModule: './duckdb-eh.wasm',
-          mainWorker: './duckdb-browser-eh.worker.js',
-        },
-      });
-
-      // Initialize a new duckdb instance
-      const logger = new duckdb.ConsoleLogger();
-      const worker = new Worker(DUCKDB_CONFIG.mainWorker);
-      const db = new duckdb.AsyncDuckDB(logger, worker);
-      await db.instantiate(
-        DUCKDB_CONFIG.mainModule,
-        DUCKDB_CONFIG.pthreadWorker
-      );
-
-      await db.registerFileURL(
-        'requests.parquet',
-        datasets.hfYtd,
-        4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
-      );
-
-      // Create db connection
-      const conn = await db.connect();
-
-      // Create the 'requests' table.
-      const createSQL =
-        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
-      await conn.query(createSQL);
+      const startTime = performance.now();
 
       // Execute a SELECT query from 'requests' table
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
       console.log(`query: ${selectSQL}`);
 
-      const requests = await conn.query(selectSQL);
+      const requests = await this.conn.query(selectSQL);
 
       // Display table headers
       const requestsHeaders = ddbh.getTableHeaders(requests);
       console.log({ requestsHeaders });
 
       const requestsData = ddbh.getTableData(requests);
-      console.log('results: ', requestsData);
+      console.log({ requestsData });
 
       const endTime = performance.now(); // end bnechmark
 
       console.log(`Time taken: ${endTime - startTime}ms`);
-
-      if (conn) await conn.close();
-      if (db) await db.terminate();
-      if (worker) await worker.terminate();
-
       return requestsData;
     } catch (e) {
       console.error(e);
