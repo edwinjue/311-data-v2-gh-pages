@@ -4,10 +4,9 @@ import Worker from 'web-worker';
 import ddbh from '@utils/duckDbHelpers.js';
 
 const { protocol, host } = window.location;
-const hostname =
-  process.env.NODE_ENV === 'production'
-    ? process.env.PUBLIC_URL // homepage property in package.json
-    : `${protocol}//${host}`;
+const hostname = process.env.NODE_ENV === 'production'
+  ? process.env.PUBLIC_URL // homepage property in package.json
+  : `${protocol}//${host}`;
 
 // List of remote dataset locations used by db.registerFileURL
 const datasets = {
@@ -42,21 +41,20 @@ const DuckDbHelloWorld = () => {
         const db = new duckdb.AsyncDuckDB(logger, worker);
         await db.instantiate(
           DUCKDB_CONFIG.mainModule,
-          DUCKDB_CONFIG.pthreadWorker
+          DUCKDB_CONFIG.pthreadWorker,
         );
 
         await db.registerFileURL(
           'requests.parquet',
           datasets.hfYtd,
-          4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
+          4, // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
         );
 
         // Create db connection
         const conn = await db.connect();
 
         // Create the 'requests' table.
-        const createSQL =
-          'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+        const createSQL = 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
         await conn.query(createSQL);
 
         // Execute a SELECT query from 'requests' table
