@@ -99,10 +99,6 @@ class RequestsLayer extends React.Component {
     this.ready = true;
   };
 
-  componentDidMount() {
-    console.log('layers/RequestsLayer: inside componentDidMount');
-  }
-
   componentDidUpdate(prev) {
     const {
       activeLayer,
@@ -114,7 +110,6 @@ class RequestsLayer extends React.Component {
       endDate,
     } = this.props;
 
-    console.log('layers/RequestsLayer: inside componentdidupdate');
     if (activeLayer !== prev.activeLayer) this.setActiveLayer(activeLayer);
 
     // Check if the selected types OR the request status OR the date range has
@@ -128,12 +123,6 @@ class RequestsLayer extends React.Component {
       startDate != prev.startDate ||
       endDate != prev.endDate
     ) {
-      console.log('layers/RequestsLayer: calling this.setFilters on:', {
-        selectedTypes,
-        requestStatus,
-        startDate,
-        endDate,
-      });
       this.setFilters(selectedTypes, requestStatus, startDate, endDate);
     }
     if (
@@ -142,9 +131,6 @@ class RequestsLayer extends React.Component {
       requests !== prev.requests &&
       this.ready
     ) {
-      console.log('layers/RequestsLayer: calling this.setRequests on:', {
-        requests,
-      });
       this.setRequests(requests);
     }
     if (colorScheme !== prev.colorScheme) {
@@ -171,7 +157,6 @@ class RequestsLayer extends React.Component {
       endDate,
     } = this.props;
 
-    console.log('layers/requestsLayer: calling this.map.addLayer');
     this.map.addLayer(
       {
         id: 'request-circles',
@@ -266,7 +251,6 @@ class RequestsLayer extends React.Component {
   };
 
   setRequests = (requests) => {
-    console.log('layers/RequestsLayer: calling setData with: ', {requests})
     this.map.getSource('requests').setData(requests);
   };
 

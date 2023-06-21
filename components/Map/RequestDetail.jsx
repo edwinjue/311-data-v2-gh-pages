@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { getPinInfoRequest } from '@reducers/data';
+import { updatePinInfo } from '@reducers/data';
 import toTitleCase from '@utils/toTitleCase';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
@@ -12,6 +12,7 @@ import Link from '@material-ui/core/Link';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import ddbh from '@utils/duckDbHelpers.js';
+import { isObjectEmpty } from '@utils';
 
 // Your styles here
 const styles = theme => ({
@@ -58,23 +59,34 @@ const RequestDetail = ({
   pinsInfo,
   requestTypes,
   agencies,
-  dispatchGetPinInfoRequest,
+  // dispatchGetPinInfoRequest,
+  dispatchUpdatePinInfo,
   conn,
 }) => {
   const getPinInfo = useCallback(async () => {
-    const getPinInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
-    const pinsDataAsArrowTable = await conn.query(getPinInfoSQL);
-    const pinsData = ddbh.getTableData(pinsDataAsArrowTable);
-    console.log({ pinsData });
-  }, [requestId, conn]);
+    const getPinsInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
+
+    const pinsInfoAsArrowTable = await conn.query(getPinsInfoSQL);
+    const newPinsInfo = ddbh.getTableData(pinsInfoAsArrowTable);
+
+    if (
+      !!newPinsInfo === true
+      && Array.isArray(newPinsInfo)
+      && newPinsInfo.length > 0
+    ) {
+      dispatchUpdatePinInfo(newPinsInfo[0]);
+    }
+  }, [requestId, conn, dispatchUpdatePinInfo]);
 
   useEffect(() => {
-    console.log('RequestDetail.jsx:', { conn });
-    if (requestId && !pinsInfo[requestId]) {
-      getPinInfo(requestId);
-      dispatchGetPinInfoRequest(requestId);
+    async function fetchPins() {
+      if (requestId) {
+        await getPinInfo(requestId);
+      }
     }
-  }, [requestId, pinsInfo, dispatchGetPinInfoRequest, conn, getPinInfo]);
+
+    fetchPins();
+  }, [requestId, getPinInfo]);
 
   const renderDaysOpen = days => {
     switch (days) {
@@ -88,7 +100,7 @@ const RequestDetail = ({
   };
 
   if (!requestId) return null;
-  if (!pinsInfo[requestId]) {
+  if (isObjectEmpty(pinsInfo)) {
     return (
       <>
         <CircularProgress
@@ -101,25 +113,28 @@ const RequestDetail = ({
     );
   }
 
-  // Rest of your component code here
   const {
-    srnumber,
-    councilName,
-    typeName,
-    typeId: requestTypeId,
-    agencyId: aId,
-    agencyName,
-    sourceName,
-    createdDate,
-    closedDate,
-    address,
-  } = pinsInfo[requestId];
+    SRNumber: srnumber,
+    NCName: councilName,
+    RequestType: typeName,
+    Owner: agencyName,
+    RequestSource: sourceName,
+    CreatedDate: createdDate,
+    ClosedDate: closedDate,
+    Address: address,
+  } = pinsInfo;
 
   // regex fix to replace "/" in typeName
   const formattedTypeName = typeName.split('/').join(' ');
 
-  const { color } = requestTypes.find(({ typeId }) => typeId === requestTypeId);
-  const { website } = agencies.find(({ agencyId }) => agencyId === aId);
+  const { color } = requestTypes.find(({ socrataNames }) => socrataNames
+      .map(socrataName => socrataName.toLowerCase().trim())
+      .includes(typeName.toLowerCase().trim()));
+
+  const { website } = agencies.find(
+    ({ socrataOwner }) => socrataOwner.trim() === agencyName.toUpperCase().trim(),
+  );
+
   const daysOpen = moment().diff(moment(createdDate), 'days');
 
   return (
@@ -206,11 +221,11 @@ const RequestDetail = ({
 };
 
 RequestDetail.propTypes = {
-  requestId: PropTypes.number,
+  requestId: PropTypes.string,
   pinsInfo: PropTypes.shape({}),
   requestTypes: PropTypes.arrayOf(PropTypes.shape({})),
   agencies: PropTypes.arrayOf(PropTypes.shape({})),
-  dispatchGetPinInfoRequest: PropTypes.func.isRequired,
+  dispatchUpdatePinInfo: PropTypes.func.isRequired,
 };
 
 RequestDetail.defaultProps = {
@@ -227,7 +242,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  dispatchGetPinInfoRequest: srnumber => dispatch(getPinInfoRequest(srnumber)),
+  dispatchUpdatePinInfo: pinInfo => dispatch(updatePinInfo(pinInfo)),
 });
 
 export default connect(

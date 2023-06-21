@@ -265,7 +265,7 @@ class Map extends React.Component {
           dispatchUpdateNcId(selectedCouncilId);
           this.hasSetInitialNCView = true;
         } catch (err) {
-          console.log('could not set ncid');
+          console.error('could not set ncid');
           this.hasSetInitialNCView = false;
         }
       }
@@ -395,14 +395,11 @@ class Map extends React.Component {
   };
 
   onClick = (e) => {
-    console.log('Map.jsx: click detected');
     const hoverables = ['nc-fills', 'cc-fills'];
 
     const features = this.map.queryRenderedFeatures(e.point, {
       layers: ['request-circles', ...hoverables],
     });
-
-    console.log('Map.jsx: features:', { features });
 
     const {
       dispatchUpdateNcId,
@@ -460,7 +457,6 @@ class Map extends React.Component {
       }
 
       if (feature.layer.id === 'request-circles') {
-        console.log({ feature });
         const { coordinates } = feature.geometry;
         const { requestId, typeId } = feature.properties;
         return this.addPopup(coordinates, requestId);

@@ -362,7 +362,6 @@ class MapContainer extends React.Component {
       `${process.env.SOCRATA_API_URL}?$where=` +
       encodeURI(`createddate between '${startDate}' and '${endDate}'`) +
       `&$limit=${REQUEST_LIMIT}&$$app_token=${process.env.SOCRATA_TOKEN}`;
-    // console.log(`url: ${url}`)
 
     var requests = [];
     // for (const date of datesInRange){
@@ -382,20 +381,14 @@ class MapContainer extends React.Component {
 
       // Execute a SELECT query from 'requests' table
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
-      console.log(`query: ${selectSQL}`);
 
       const requestsAsArrowTable = await this.conn.query(selectSQL);
 
-      // Display table headers
-      const requestsHeaders = ddbh.getTableHeaders(requestsAsArrowTable);
-      console.log({ requestsHeaders });
-
       const requestsData = ddbh.getTableData(requestsAsArrowTable);
-      console.log({ requestsData });
 
       const endTime = performance.now(); // end bnechmark
 
-      console.log(`Time taken: ${endTime - startTime}ms`);
+      console.log(`Time taken to bootstrap db: ${endTime - startTime}ms`);
       return requestsData;
     } catch (e) {
       console.error(e);
@@ -428,10 +421,6 @@ class MapContainer extends React.Component {
       responses.forEach((response) => this.rawRequests.push(...response.data));
     });
 
-    console.log(`this.rawRequests.length: ${this.rawRequests.length}`);
-    // if(this.rawRequests.length > 0 )
-    // console.log(`this.rawRequests[0]: `, this.rawRequests[0])
-
     if (this.isSubscribed) {
       const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
         this.props;
@@ -455,8 +444,6 @@ class MapContainer extends React.Component {
       const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
         this.props;
       const convertedRequests = this.convertRequests(this.rawRequests);
-
-      console.log({ convertedRequests });
 
       // set isMapLoading in redux state.data to false
       dispatchGetDataRequestSuccess(convertedRequests);

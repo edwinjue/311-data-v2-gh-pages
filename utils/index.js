@@ -123,3 +123,8 @@ export const createObjFromArrays = ({ keyArray = [], valArray = [] }) => {
     return undefined;
   }
 };
+
+export function isObjectEmpty(obj) {
+  if (!!obj === false) return false;
+  return Object.keys(obj).length === 0;
+}

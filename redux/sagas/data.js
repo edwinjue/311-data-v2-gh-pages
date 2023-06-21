@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {
   takeLatest,
-  takeEvery,
+  // takeEvery,
   call,
   put,
   select,
@@ -12,26 +12,19 @@ import {
   types,
   getPinsSuccess,
   getPinsFailure,
-  getPinInfoSuccess,
-  getPinInfoFailure,
+  // getPinInfoSuccess,
+  // getPinInfoFailure,
   getNcByLngLatSuccess,
   getNcByLngLatFailure,
   gitResponseSuccess,
   gitResponseFailure,
 } from '../reducers/data';
 
-import {
-  updateNcId,
-} from '../reducers/filters';
+import { updateNcId } from '../reducers/filters';
 
-import {
-  setErrorModal,
-  showFeedbackSuccess,
-} from '../reducers/ui';
+import { setErrorModal, showFeedbackSuccess } from '../reducers/ui';
 
-import {
-  types as mapFiltersTypes,
-} from '../reducers/mapFilters';
+import { types as mapFiltersTypes } from '../reducers/mapFilters';
 
 /* ////////////////// API CALLS  //////////////// */
 
@@ -47,13 +40,13 @@ function* fetchPins(filters) {
   return data;
 }
 
-function* fetchPinInfo(srnumber) {
-  const pinInfoUrl = `${BASE_URL}/requests/${srnumber}`;
-
-  const { data } = yield call(axios.get, pinInfoUrl);
-
-  return data;
-}
+// function* fetchPinInfo(srnumber) {
+//   const pinInfoUrl = `${BASE_URL}/requests/${srnumber}`;
+//
+//   const { data } = yield call(axios.get, pinInfoUrl);
+//
+//   return data;
+// }
 
 function* fetchNcByLngLat({ longitude, latitude }) {
   const geocodeUrl = `${BASE_URL}/geojson/geocode?latitude=${latitude}&longitude=${longitude}`;
@@ -78,21 +71,22 @@ const getState = (state, slice) => state[slice];
 
 function* getFilters() {
   const {
-    startDate,
-    endDate,
-    councils,
-    requestTypes,
-  } = yield select(getState, 'filters');
-
-  const convertCouncilNameToID = ncList => (
-    ncList.map(name => COUNCILS.find(nc => nc.name === name)?.id)
+    startDate, endDate, councils, requestTypes,
+  } = yield select(
+    getState,
+    'filters',
   );
+
+  // eslint-disable-next-line max-len
+  const convertCouncilNameToID = ncList => ncList.map(name => COUNCILS.find(nc => nc.name === name)?.id);
 
   return {
     startDate,
     endDate,
     ncList: convertCouncilNameToID(councils),
-    requestTypes: Object.keys(requestTypes).filter(req => req !== 'All' && requestTypes[req]),
+    requestTypes: Object.keys(requestTypes).filter(
+      req => req !== 'All' && requestTypes[req],
+    ),
   };
 }
 
@@ -116,16 +110,16 @@ function* getMapData() {
   }
 }
 
-function* getPinData(action) {
-  try {
-    const srnumber = action.payload;
-    const data = yield call(fetchPinInfo, srnumber);
-    yield put(getPinInfoSuccess(data));
-  } catch (e) {
-    yield put(getPinInfoFailure(e));
-    yield put(setErrorModal(true));
-  }
-}
+// function* getPinData(action) {
+//   try {
+//     const srnumber = action.payload;
+//     const data = yield call(fetchPinInfo, srnumber);
+//     yield put(getPinInfoSuccess(data));
+//   } catch (e) {
+//     yield put(getPinInfoFailure(e));
+//     yield put(setErrorModal(true));
+//   }
+// }
 
 function* getNcByLngLat(action) {
   try {
@@ -157,6 +151,6 @@ function* sendContactData(action) {
 export default function* rootSaga() {
   yield takeLatest(mapFiltersTypes.UPDATE_MAP_DATE_RANGE, getMapData);
   yield takeLatest(types.GET_NC_BY_LNG_LAT, getNcByLngLat);
-  yield takeEvery(types.GET_PIN_INFO_REQUEST, getPinData);
+  // yield takeEvery(types.GET_PIN_INFO_REQUEST, getPinData);
   yield takeLatest(types.SEND_GIT_REQUEST, sendContactData);
 }
