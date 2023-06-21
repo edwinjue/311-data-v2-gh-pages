@@ -23,18 +23,13 @@ const WHITE_HEX = '#FFFFFF';
 
 function circleColors(requestTypes) {
   const colors = [];
-  requestTypes.forEach(type => colors.push(type.typeId, type.color))
-  return [
-    'match',
-    [GET, TYPE_ID],
-    ...colors,
-    WHITE_HEX,
-  ];
+  requestTypes.forEach((type) => colors.push(type.typeId, type.color));
+  return ['match', [GET, TYPE_ID], ...colors, WHITE_HEX];
 }
 
 /**
  * Gets a MapBox GL JS filter specification to filter request types.
- * 
+ *
  * @param {Object} selectedTypes A mapping of k:v, where k is an str request
  * type, and v is a boolean indicating whether the request type is selected.
  * @return {Array} A Mapbox GL JS filter specification that filters out the
@@ -42,17 +37,15 @@ function circleColors(requestTypes) {
  */
 function typeFilter(selectedTypes) {
   // Get an array of int typeIds corresponding value in selectedTypes is true.
-  var trueTypes = Object.keys(selectedTypes).map((type) => parseInt(type)).filter((type) => selectedTypes[type]);
-  return [
-    'in',
-    [GET, TYPE_ID],
-    [LITERAL, trueTypes]
-  ];
+  var trueTypes = Object.keys(selectedTypes)
+    .map((type) => parseInt(type))
+    .filter((type) => selectedTypes[type]);
+  return ['in', [GET, TYPE_ID], [LITERAL, trueTypes]];
 }
 
 /**
  * Gets a MapBox GL JS filter specification to filter request statuses.
- * 
+ *
  * @param {Object} requestStatus A mapping of k:v, where k is a request status
  * (either open or closed), and v is a boolean indicating whether the request
  * status is selected.
@@ -76,7 +69,7 @@ function statusFilter(requestStatus) {
 
 /**
  * Gets a MapBox GL JS filter specification to filter requests by date range.
- * 
+ *
  * @param {string} startDate The start date, in YYYY-MM-DD format.
  * @param {string} endDate The end date, in YYYY-MM-DD format.
  * @return {Array} A Mapbox GL JS filter specification that filters out
@@ -85,7 +78,9 @@ function statusFilter(requestStatus) {
 function dateFilter(startDate, endDate) {
   const startDateMs = moment(startDate, INTERNAL_DATE_SPEC).valueOf();
   // Make the end date inclusive by adding 1 day.
-  const endDateMs = moment(endDate, INTERNAL_DATE_SPEC).add(1, 'days').valueOf();
+  const endDateMs = moment(endDate, INTERNAL_DATE_SPEC)
+    .add(1, 'days')
+    .valueOf();
   const afterStartDate = ['>=', [GET, 'createdDateMs'], [LITERAL, startDateMs]];
   const beforeEndDate = ['<=', [GET, 'createdDateMs'], [LITERAL, endDateMs]];
   return ['all', afterStartDate, beforeEndDate];
@@ -102,6 +97,10 @@ class RequestsLayer extends React.Component {
     this.addSources();
     this.addLayers();
     this.ready = true;
+  };
+
+  componentDidMount() {
+    console.log('layers/RequestsLayer: inside componentDidMount');
   }
 
   componentDidUpdate(prev) {
@@ -115,21 +114,37 @@ class RequestsLayer extends React.Component {
       endDate,
     } = this.props;
 
-    if (activeLayer !== prev.activeLayer)
-      this.setActiveLayer(activeLayer);
+    console.log('layers/RequestsLayer: inside componentdidupdate');
+    if (activeLayer !== prev.activeLayer) this.setActiveLayer(activeLayer);
 
     // Check if the selected types OR the request status OR the date range has
     // changed.
     // These filters need to be updated together, since they are
     // actually composed into a single filter.
-    if (selectedTypes !== prev.selectedTypes ||
+    if (
+      selectedTypes !== prev.selectedTypes ||
       requestStatus.open !== prev.requestStatus.open ||
       requestStatus.closed !== prev.requestStatus.closed ||
       startDate != prev.startDate ||
-      endDate != prev.endDate) {
+      endDate != prev.endDate
+    ) {
+      console.log('layers/RequestsLayer: calling this.setFilters on:', {
+        selectedTypes,
+        requestStatus,
+        startDate,
+        endDate,
+      });
       this.setFilters(selectedTypes, requestStatus, startDate, endDate);
     }
-    if (requests !== prev.requests && this.ready) {
+    if (
+      !!requests?.features === true &&
+      requests.features.length > 0 &&
+      requests !== prev.requests &&
+      this.ready
+    ) {
+      console.log('layers/RequestsLayer: calling this.setRequests on:', {
+        requests,
+      });
       this.setRequests(requests);
     }
     if (colorScheme !== prev.colorScheme) {
@@ -156,27 +171,35 @@ class RequestsLayer extends React.Component {
       endDate,
     } = this.props;
 
-    this.map.addLayer({
-      id: 'request-circles',
-      type: 'circle',
-      source: 'requests',
-      layout: {
-        visibility: activeLayer === 'points' ? 'visible' : 'none',
-      },
-      paint: {
-        'circle-radius': {
-          'base': 1.75,
-          'stops': [
-            [10, 2],
-            [15, 10]
-          ],
+    console.log('layers/requestsLayer: calling this.map.addLayer');
+    this.map.addLayer(
+      {
+        id: 'request-circles',
+        type: 'circle',
+        source: 'requests',
+        layout: {
+          visibility: activeLayer === 'points' ? 'visible' : 'none',
         },
-        'circle-color': circleColors(requestTypes),
-        'circle-opacity': 0.8,
+        paint: {
+          'circle-radius': {
+            base: 1.75,
+            stops: [
+              [10, 2],
+              [15, 10],
+            ],
+          },
+          'circle-color': circleColors(requestTypes),
+          'circle-opacity': 0.8,
+        },
+        filter: this.getFilterSpec(
+          selectedTypes,
+          requestStatus,
+          startDate,
+          endDate
+        ),
       },
-      filter: this.getFilterSpec(selectedTypes, requestStatus, startDate,
-        endDate),
-    }, BEFORE_ID);
+      BEFORE_ID
+    );
 
     // this.map.addLayer({
     //   id: 'request-heatmap',
@@ -192,7 +215,7 @@ class RequestsLayer extends React.Component {
     // }, BEFORE_ID);
   };
 
-  setActiveLayer = activeLayer => {
+  setActiveLayer = (activeLayer) => {
     switch (activeLayer) {
       case 'points':
         this.map.setLayoutProperty('request-circles', 'visibility', 'visible');
@@ -211,7 +234,7 @@ class RequestsLayer extends React.Component {
 
   /**
    * Gets a MapBox GL JS filter specification.
-   * 
+   *
    * @param {Object} selectedTypes A mapping of k:v, where k is an int request
    * type, and v is a boolean indicating whether the request type is selected.
    * @param {Object} requestStatus A mapping of k:v, where k is a request status
@@ -219,32 +242,39 @@ class RequestsLayer extends React.Component {
    * status is selected.
    * @param {string} startDate The start date, in YYYY-MM-DD format.
    * @param {string} endDate The end date, in YYYY-MM-DD format.
-    * @return {Array} A Mapbox GL JS filter specification that filters out the
+   * @return {Array} A Mapbox GL JS filter specification that filters out the
    * unselected types and statuses.
    */
   getFilterSpec = (selectedTypes, requestStatus, startDate, endDate) => {
-    return ['all', typeFilter(selectedTypes), statusFilter(requestStatus),
-      dateFilter(startDate, endDate)];
+    return [
+      'all',
+      typeFilter(selectedTypes),
+      statusFilter(requestStatus),
+      dateFilter(startDate, endDate),
+    ];
   };
 
   setFilters = (selectedTypes, requestStatus, startDate, endDate) => {
-    if (this.map){
-      this.map.setFilter('request-circles',
-      this.getFilterSpec(selectedTypes, requestStatus, startDate, endDate));
-    // Currently, we do not support heatmap. If we did, we'd want to update
-    // its filter here as well.
+    if (this.map) {
+      this.map.setFilter(
+        'request-circles',
+        this.getFilterSpec(selectedTypes, requestStatus, startDate, endDate)
+      );
+      // Currently, we do not support heatmap. If we did, we'd want to update
+      // its filter here as well.
     }
   };
 
-  setRequests = requests => {
+  setRequests = (requests) => {
+    console.log('layers/RequestsLayer: calling setData with: ', {requests})
     this.map.getSource('requests').setData(requests);
   };
 
-  setColorScheme = colorScheme => {
+  setColorScheme = (colorScheme) => {
     this.map.setPaintProperty(
       'request-circles',
       'circle-color',
-      circleColors(colorScheme),
+      circleColors(colorScheme)
     );
   };
 
@@ -263,7 +293,7 @@ RequestsLayer.defaultProps = {
   colorScheme: '',
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   selectedTypes: state.filters.requestTypes,
   requestStatus: state.filters.requestStatus,
   requests: state.data.requests,
@@ -274,4 +304,6 @@ const mapStateToProps = state => ({
 // We need to specify forwardRef to allow refs on connected components.
 // See https://github.com/reduxjs/react-redux/issues/1291#issuecomment-494185126
 // for more info.
-export default connect(mapStateToProps, null, null, { forwardRef: true })(RequestsLayer);
+export default connect(mapStateToProps, null, null, { forwardRef: true })(
+  RequestsLayer
+);

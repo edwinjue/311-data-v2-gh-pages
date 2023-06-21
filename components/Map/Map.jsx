@@ -130,6 +130,7 @@ class Map extends React.Component {
     this.isSubscribed = null;
     this.initialState = props.initialState;
     this.hasSetInitialNCView = false;
+    this.conn = props.conn; //database connection
   }
 
   componentDidMount() {
@@ -394,11 +395,14 @@ class Map extends React.Component {
   };
 
   onClick = (e) => {
+    console.log('Map.jsx: click detected');
     const hoverables = ['nc-fills', 'cc-fills'];
 
     const features = this.map.queryRenderedFeatures(e.point, {
       layers: ['request-circles', ...hoverables],
     });
+
+    console.log('Map.jsx: features:', { features });
 
     const {
       dispatchUpdateNcId,
@@ -456,6 +460,7 @@ class Map extends React.Component {
       }
 
       if (feature.layer.id === 'request-circles') {
+        console.log({ feature });
         const { coordinates } = feature.geometry;
         const { requestId, typeId } = feature.properties;
         return this.addPopup(coordinates, requestId);
@@ -757,4 +762,3 @@ const mapDispatchToProps = (dispatch) => ({
 export default connect(mapStateToProps, mapDispatchToProps, null, {
   forwardRef: true,
 })(withStyles(styles)(Map));
-

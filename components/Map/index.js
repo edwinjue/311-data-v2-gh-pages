@@ -444,18 +444,25 @@ class MapContainer extends React.Component {
 
   duckDbSetData = async () => {
     const { startDate, endDate, dispatchGetDataRequest } = this.props;
+    const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
+    if (missingDateRanges.length === 0) {
+      return;
+    }
     dispatchGetDataRequest(); // set isMapLoading in redux state.data to true
     this.rawRequests = await this.getAllRequests(startDate, endDate);
+
     if (this.isSubscribed) {
       const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
         this.props;
       const convertedRequests = this.convertRequests(this.rawRequests);
 
       console.log({ convertedRequests });
-      dispatchGetDataRequestSuccess(convertedRequests); //
-      //   const newDateRangesWithRequests =
-      //   this.resolveDateRanges(missingDateRanges);
-      // dispatchUpdateDateRanges(newDateRangesWithRequests);
+
+      // set isMapLoading in redux state.data to false
+      dispatchGetDataRequestSuccess(convertedRequests);
+      const newDateRangesWithRequests =
+        this.resolveDateRanges(missingDateRanges);
+      dispatchUpdateDateRanges(newDateRangesWithRequests);
     }
   };
 
@@ -534,7 +541,7 @@ class MapContainer extends React.Component {
           exportMap={dispatchTrackMapExport}
           selectedTypes={selectedTypes}
           initialState={this.initialState}
-          conn={this.conn}  
+          conn={this.conn}
         />
         <CookieNotice />
         {isMapLoading && (
