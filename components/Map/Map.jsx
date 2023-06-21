@@ -130,7 +130,6 @@ class Map extends React.Component {
     this.isSubscribed = null;
     this.initialState = props.initialState;
     this.hasSetInitialNCView = false;
-    this.conn = props.conn; //database connection
   }
 
   componentDidMount() {
@@ -247,7 +246,7 @@ class Map extends React.Component {
 
       if (
         this.initialState.councilId &&
-        !!councils?.length === true && 
+        !!councils?.length === true &&
         councils.length > 0 &&
         !this.hasSetInitialNCView &&
         ncBoundaries
@@ -634,6 +633,7 @@ class Map extends React.Component {
       requestTypes,
       selectedNcId,
       councils,
+      conn, // database connection
     } = this.props;
 
     const {
@@ -681,7 +681,7 @@ class Map extends React.Component {
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
         <div ref={(el) => (this.requestDetail = el)}>
-          <RequestDetail requestId={selectedRequestId} />
+          <RequestDetail requestId={selectedRequestId} conn={conn} />
         </div>
         {this.state.mapReady && requestTypes && (
           <>

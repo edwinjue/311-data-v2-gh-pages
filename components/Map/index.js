@@ -384,13 +384,13 @@ class MapContainer extends React.Component {
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
       console.log(`query: ${selectSQL}`);
 
-      const requests = await this.conn.query(selectSQL);
+      const requestsAsArrowTable = await this.conn.query(selectSQL);
 
       // Display table headers
-      const requestsHeaders = ddbh.getTableHeaders(requests);
+      const requestsHeaders = ddbh.getTableHeaders(requestsAsArrowTable);
       console.log({ requestsHeaders });
 
-      const requestsData = ddbh.getTableData(requests);
+      const requestsData = ddbh.getTableData(requestsAsArrowTable);
       console.log({ requestsData });
 
       const endTime = performance.now(); // end bnechmark

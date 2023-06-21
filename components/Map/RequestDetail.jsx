@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ddbh from '@utils/duckDbHelpers.js';
 
 // Your styles here
 const styles = theme => ({
@@ -57,13 +58,23 @@ const RequestDetail = ({
   pinsInfo,
   requestTypes,
   agencies,
-  dispatchGetPinInfo,
+  dispatchGetPinInfoRequest,
+  conn,
 }) => {
+  const getPinInfo = useCallback(async () => {
+    const getPinInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
+    const pinsDataAsArrowTable = await conn.query(getPinInfoSQL);
+    const pinsData = ddbh.getTableData(pinsDataAsArrowTable);
+    console.log({ pinsData });
+  }, [requestId, conn]);
+
   useEffect(() => {
+    console.log('RequestDetail.jsx:', { conn });
     if (requestId && !pinsInfo[requestId]) {
-      dispatchGetPinInfo(requestId);
+      getPinInfo(requestId);
+      dispatchGetPinInfoRequest(requestId);
     }
-  }, [requestId, pinsInfo, dispatchGetPinInfo]);
+  }, [requestId, pinsInfo, dispatchGetPinInfoRequest, conn, getPinInfo]);
 
   const renderDaysOpen = days => {
     switch (days) {
@@ -199,7 +210,7 @@ RequestDetail.propTypes = {
   pinsInfo: PropTypes.shape({}),
   requestTypes: PropTypes.arrayOf(PropTypes.shape({})),
   agencies: PropTypes.arrayOf(PropTypes.shape({})),
-  dispatchGetPinInfo: PropTypes.func.isRequired,
+  dispatchGetPinInfoRequest: PropTypes.func.isRequired,
 };
 
 RequestDetail.defaultProps = {
@@ -216,7 +227,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  dispatchGetPinInfo: srnumber => dispatch(getPinInfoRequest(srnumber)),
+  dispatchGetPinInfoRequest: srnumber => dispatch(getPinInfoRequest(srnumber)),
 });
 
 export default connect(
