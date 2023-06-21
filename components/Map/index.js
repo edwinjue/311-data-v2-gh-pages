@@ -377,6 +377,7 @@ class MapContainer extends React.Component {
 
   duckDbGetAllRequests = async (startDate, endDate) => {
     try {
+      console.log('Loading db...');
       const startTime = performance.now();
 
       // Execute a SELECT query from 'requests' table
