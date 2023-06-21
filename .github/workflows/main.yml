@@ -19,10 +19,10 @@ jobs:
     - name: Checkout Repo Code
       uses: actions/checkout@v2
       
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '2.x'
+#    - name: Setup Python
+#      uses: actions/setup-python@v2
+#      with:
+#        python-version: '2.x'
         
     - name: Use Node.js 12.x
       uses: actions/setup-node@v3
