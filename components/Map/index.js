@@ -408,13 +408,13 @@ class MapContainer extends React.Component {
   };
 
   socrataSetData = async () => {
-    const { startDate, endDate, getDataRedux } = this.props;
+    const { startDate, endDate, dispatchGetDataRequest } = this.props;
 
     const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
     if (missingDateRanges.length === 0) {
       return;
     }
-    getDataRedux();
+    dispatchGetDataRequest();
     this.rawRequests = [];
     var allRequestPromises = [];
     for (const missingDateRange of missingDateRanges) {
@@ -433,26 +433,29 @@ class MapContainer extends React.Component {
     // console.log(`this.rawRequests[0]: `, this.rawRequests[0])
 
     if (this.isSubscribed) {
-      const { getDataSuccess, updateDateRangesWithRequests } = this.props;
-      getDataSuccess(this.convertRequests(this.rawRequests));
+      const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
+        this.props;
+      dispatchGetDataRequestSuccess(this.convertRequests(this.rawRequests));
       const newDateRangesWithRequests =
         this.resolveDateRanges(missingDateRanges);
-      updateDateRangesWithRequests(newDateRangesWithRequests);
+      dispatchUpdateDateRanges(newDateRangesWithRequests);
     }
   };
 
   duckDbSetData = async () => {
-    const { startDate, endDate, getDataRedux } = this.props;
+    const { startDate, endDate, dispatchGetDataRequest } = this.props;
+    dispatchGetDataRequest(); // set isMapLoading in redux state.data to true
     this.rawRequests = await this.getAllRequests(startDate, endDate);
     if (this.isSubscribed) {
-      const { getDataSuccess, updateDateRangesWithRequests } = this.props;
+      const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
+        this.props;
       const convertedRequests = this.convertRequests(this.rawRequests);
 
       console.log({ convertedRequests });
-      getDataSuccess(convertedRequests);
+      dispatchGetDataRequestSuccess(convertedRequests); //
       //   const newDateRangesWithRequests =
       //   this.resolveDateRanges(missingDateRanges);
-      // updateDateRangesWithRequests(newDateRangesWithRequests);
+      // dispatchUpdateDateRanges(newDateRangesWithRequests);
     }
   };
 
@@ -512,8 +515,8 @@ class MapContainer extends React.Component {
     const {
       position,
       lastUpdated,
-      updatePosition,
-      exportMap,
+      dispatchUpdateMapPosition,
+      dispatchTrackMapExport,
       classes,
       requests,
       isMapLoading,
@@ -527,8 +530,8 @@ class MapContainer extends React.Component {
           ccCounts={ccCounts}
           position={position}
           lastUpdated={lastUpdated}
-          updatePosition={updatePosition}
-          exportMap={exportMap}
+          updatePosition={dispatchUpdateMapPosition}
+          exportMap={dispatchTrackMapExport}
           selectedTypes={selectedTypes}
           initialState={this.initialState}
         />
@@ -562,11 +565,13 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  updatePosition: (position) => dispatch(updateMapPosition(position)),
-  exportMap: () => dispatch(trackMapExport()),
-  getDataRedux: () => dispatch(getDataRequest()),
-  getDataSuccess: (data) => dispatch(getDataRequestSuccess(data)),
-  updateDateRangesWithRequests: (dateRanges) =>
+  dispatchUpdateMapPosition: (position) =>
+    dispatch(updateMapPosition(position)),
+  dispatchTrackMapExport: () => dispatch(trackMapExport()),
+  dispatchGetDataRequest: () => dispatch(getDataRequest()),
+  dispatchGetDataRequestSuccess: (data) =>
+    dispatch(getDataRequestSuccess(data)),
+  dispatchUpdateDateRanges: (dateRanges) =>
     dispatch(updateDateRanges(dateRanges)),
   dispatchUpdateStartDate: (startDate) => dispatch(updateStartDate(startDate)),
   dispatchUpdateEndDate: (endDate) => dispatch(updateEndDate(endDate)),
