@@ -54,13 +54,14 @@ const Footer = ({ lastUpdated }) => {
 
   return (
     <footer className={classes.footer}>
-      { lastUpdated && (
+      {lastUpdated && (
         <div className={classes.container}>
           <div className={classes.copyrightContainer}>
             <Typography variant="body2" className={classes.copyright}>
               &#169;
               {currentDate.getFullYear()}
-&nbsp;311 Data&nbsp;&nbsp;|&nbsp;&nbsp;All Rights Reserved&nbsp;&nbsp;|&nbsp;&nbsp;
+              &nbsp;311 Data&nbsp;&nbsp;|&nbsp;&nbsp;All Rights
+              Reserved&nbsp;&nbsp;|&nbsp;&nbsp;
               <Link to="/privacy" className={classes.link}>
                 Privacy Policy
               </Link>

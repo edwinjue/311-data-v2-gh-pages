@@ -19,7 +19,7 @@ import {
   INITIAL_BOUNDS,
   INITIAL_LOCATION,
   GEO_FILTER_TYPES,
-  MAP_STYLES
+  MAP_STYLES,
 } from './constants';
 
 import {
@@ -47,9 +47,9 @@ import RequestDetail from './RequestDetail';
 
 import { debounce } from '@utils';
 
-import settings from '@settings'
+import settings from '@settings';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     position: 'absolute',
     top: 0,
@@ -96,7 +96,7 @@ const styles = theme => ({
     left: '20px',
     top: '20px',
   },
-})
+});
 
 class Map extends React.Component {
   constructor(props) {
@@ -128,9 +128,8 @@ class Map extends React.Component {
     this.requestDetail = null;
     this.popup = null;
     this.isSubscribed = null;
-    this.initialState = props.initialState
-    this.hasSetInitialNCView = false
-
+    this.initialState = props.initialState;
+    this.hasSetInitialNCView = false;
   }
 
   componentDidMount() {
@@ -144,7 +143,7 @@ class Map extends React.Component {
       fitBoundsOptions: { padding: 50 },
       pitchWithRotate: false,
       dragRotate: false,
-      touchZoomRotate: false
+      touchZoomRotate: false,
     });
 
     map.on('load', () => {
@@ -153,13 +152,12 @@ class Map extends React.Component {
 
         map.on('click', this.debouncedOnClick);
 
-        map.once('idle', e => {
+        map.once('idle', (e) => {
           this.setState({ mapReady: true });
         });
       }
     });
     this.map = map;
-
   }
 
   componentWillUnmount() {
@@ -189,8 +187,9 @@ class Map extends React.Component {
       if (
         this.state.filterGeo !== prevState.filterGeo ||
         this.state.selectedTypes !== prevState.selectedTypes
-      ) this.map.once('idle', this.setFilteredRequestCounts);
-  
+      )
+        this.map.once('idle', this.setFilteredRequestCounts);
+
       if (this.props.ncBoundaries != prevProps.ncBoundaries) {
         this.ncLayer.init({
           map: this.map,
@@ -198,7 +197,7 @@ class Map extends React.Component {
           sourceId: 'nc',
           sourceData: this.props.ncBoundaries,
           idProperty: 'council_id',
-          onSelectRegion: geo => {
+          onSelectRegion: (geo) => {
             this.setState({
               locationInfo: {
                 nc: {
@@ -213,76 +212,85 @@ class Map extends React.Component {
               this.setState({ filterGeo: geo });
             });
           },
-          onHoverRegion: geo => {
+          onHoverRegion: (geo) => {
             this.setState({
               hoveredRegionName: geo
                 ? ncNameFromId(geo.properties.nc_id)
-                : null
+                : null,
             });
-          }
+          },
         });
       }
-  
+
       if (this.props.selectedNcId !== prevProps.selectedNcId) {
         const { councils, selectedNcId } = this.props;
         const nc = councils.find(({ councilId }) => councilId === selectedNcId);
         this.setState({ selectedNc: nc });
         return this.ncLayer.selectRegion(selectedNcId);
       }
-  
+
       if (this.props.ncId !== prevProps.ncId) {
         const { councils, ncId } = this.props;
         const nc = councils.find(({ councilId }) => councilId === ncId);
         this.setState({ selectedNc: nc });
         return this.ncLayer.selectRegion(ncId);
       }
-  
-  
-      const { 
+
+      const {
         dispatchUpdateNcId,
         dispatchUpdateSelectedCouncils,
-        dispatchUpdateUnselectedCouncils, 
-        councils, 
-        ncBoundaries } = this.props;
-  
-      if(this.initialState.councilId && councils?.length > 0 && !(this.hasSetInitialNCView) && ncBoundaries){
-        try{
+        dispatchUpdateUnselectedCouncils,
+        councils,
+        ncBoundaries,
+      } = this.props;
+
+      if (
+        this.initialState.councilId &&
+        !!councils?.length === true &&
+        councils.length > 0 &&
+        !this.hasSetInitialNCView &&
+        ncBoundaries
+      ) {
+        try {
           const selectedCouncilId = Number(this.initialState.councilId);
-          const newSelectedCouncil = councils.find(({ councilId }) => councilId === selectedCouncilId);
-          if (!newSelectedCouncil){
-            throw new Error('Council Does not exist from search query')
+          const newSelectedCouncil = councils.find(
+            ({ councilId }) => councilId === selectedCouncilId
+          );
+          if (!newSelectedCouncil) {
+            throw new Error('Council Does not exist from search query');
           }
           const newSelected = [newSelectedCouncil];
           dispatchUpdateSelectedCouncils(newSelected);
           dispatchUpdateUnselectedCouncils(councils);
           dispatchUpdateNcId(selectedCouncilId);
-          this.hasSetInitialNCView = true
+          this.hasSetInitialNCView = true;
         } catch (err) {
-          console.log("could not set ncid")
-          this.hasSetInitialNCView = false
+          console.error('could not set ncid');
+          this.hasSetInitialNCView = false;
         }
       }
-    })
+    });
   }
 
-  initLayers = addListeners => {
+  initLayers = (addListeners) => {
     this.addressLayer.init({
       map: this.map,
       addListeners,
-      onSelectRegion: ({ geo, center }) => this.setState({
-        filterGeo: geo,
-        ...(
-          center
+      onSelectRegion: ({ geo, center }) =>
+        this.setState({
+          filterGeo: geo,
+          ...(center
             ? {
-              locationInfo: {
-                location: `${center.lat.toFixed(6)} N ${center.lng.toFixed(6)} E`,
-                radius: 1,
-                nc: ncInfoFromLngLat(center),
+                locationInfo: {
+                  location: `${center.lat.toFixed(6)} N ${center.lng.toFixed(
+                    6
+                  )} E`,
+                  radius: 1,
+                  nc: ncInfoFromLngLat(center),
+                },
               }
-            }
-            : {}
-        )
-      }),
+            : {}),
+        }),
     });
 
     this.requestsLayer.init({
@@ -295,23 +303,21 @@ class Map extends React.Component {
       sourceId: 'cc',
       sourceData: ccBoundaries,
       idProperty: 'name',
-      onSelectRegion: geo => {
+      onSelectRegion: (geo) => {
         this.setState({
           locationInfo: {
             cc: ccNameFromId(geo.properties.name),
-          }
+          },
         });
         this.map.once('zoomend', () => {
           this.setState({ filterGeo: geo });
         });
       },
-      onHoverRegion: geo => {
+      onHoverRegion: (geo) => {
         this.setState({
-          hoveredRegionName: geo
-            ? ccNameFromId(geo.properties.name)
-            : null
+          hoveredRegionName: geo ? ccNameFromId(geo.properties.name) : null,
         });
-      }
+      },
     });
   };
 
@@ -321,7 +327,7 @@ class Map extends React.Component {
       .setLngLat(coordinates)
       .setDOMContent(this.requestDetail)
       .addTo(this.map);
-  }
+  };
 
   removePopup = () => {
     if (this.popup) {
@@ -332,7 +338,7 @@ class Map extends React.Component {
   };
 
   reset = () => {
-    const { dispatchUpdateNcId } = this.props
+    const { dispatchUpdateNcId } = this.props;
 
     this.zoomOut();
     this.addressLayer.clearMarker();
@@ -348,98 +354,96 @@ class Map extends React.Component {
     });
 
     // Set councilId in reducers/filters back to null
-    dispatchUpdateNcId(null)
-       
+    dispatchUpdateNcId(null);
+
     this.map.once('zoomend', () => {
       this.setState({
         filterGeo: null,
         canReset: true,
-      });      
+      });
     });
   };
 
   resetBoundaries = () => {
-    const { 
-      dispatchUpdateNcId, 
+    const {
+      dispatchUpdateNcId,
       dispatchUpdateSelectedCouncils,
       dispatchUpdateUnselectedCouncils,
-      councils } = this.props;
+      councils,
+    } = this.props;
 
     // Reset the selected NcId back to null.
     dispatchUpdateNcId(null);
 
     // Reset councilSelector.
-    dispatchUpdateSelectedCouncils([])
-    dispatchUpdateUnselectedCouncils(councils)
-  }
+    dispatchUpdateSelectedCouncils([]);
+    dispatchUpdateUnselectedCouncils(councils);
+  };
 
   addressSearchIsEmpty = () => {
-    const addressSearchInput = document.querySelector('#geocoder input')
-    return !Boolean(addressSearchInput?.value?.trim())
-  }
+    const addressSearchInput = document.querySelector('#geocoder input');
+    return !Boolean(addressSearchInput?.value?.trim());
+  };
 
   resetAddressSearch = () => {
-    if(!this.addressSearchIsEmpty()){
+    if (!this.addressSearchIsEmpty()) {
       // Dispatch custom event to MapSearch to trigger geocoder.clear() to clear Address Search input
-      const geocoderElement = document.getElementById('geocoder')
-      const resetEvent = new Event(settings.map.eventName.reset)
-      geocoderElement.dispatchEvent(resetEvent)
+      const geocoderElement = document.getElementById('geocoder');
+      const resetEvent = new Event(settings.map.eventName.reset);
+      geocoderElement.dispatchEvent(resetEvent);
     }
-  }
+  };
 
-  onClick = e => {
-
-    const hoverables = [
-      'nc-fills',
-      'cc-fills'
-    ];
+  onClick = (e) => {
+    const hoverables = ['nc-fills', 'cc-fills'];
 
     const features = this.map.queryRenderedFeatures(e.point, {
-      layers: [
-        'request-circles',
-        ...hoverables
-      ]
+      layers: ['request-circles', ...hoverables],
     });
 
-    const { 
-      dispatchUpdateNcId, 
+    const {
+      dispatchUpdateNcId,
       dispatchUpdateSelectedCouncils,
       dispatchUpdateUnselectedCouncils,
       dispatchCloseBoundaries,
-      councils } = this.props;
+      councils,
+    } = this.props;
 
     for (let i = 0; i < features.length; i++) {
       const feature = features[i];
 
       if (
-        (this.props.selectedNcId !== null)
-        && (feature.properties.council_id && this.props.selectedNcId !== feature.properties.council_id)
-      ){
+        this.props.selectedNcId !== null &&
+        feature.properties.council_id &&
+        this.props.selectedNcId !== feature.properties.council_id
+      ) {
         // Since click is for another district
-        
+
         // Reset boundaries selection
-        this.resetBoundaries()
+        this.resetBoundaries();
 
         // Collapse boundaries section
-        dispatchCloseBoundaries()
+        dispatchCloseBoundaries();
 
         // Reset Address Search input field
-        this.resetAddressSearch()
+        this.resetAddressSearch();
 
         // Reset Map.
-        this.reset()
+        this.reset();
 
-        return
+        return;
       }
 
       if (hoverables.includes(feature.layer.id) && !feature.state.selected) {
         switch (feature.layer.id) {
           case 'nc-fills':
             this.setState({ address: null });
-            this.resetAddressSearch();  // Clear address search input
-            dispatchCloseBoundaries();  // Collapse boundaries section
-            const selectedCouncilId = Number(feature.properties.council_id)
-            const newSelectedCouncil = councils.find(({ councilId }) => councilId === selectedCouncilId);
+            this.resetAddressSearch(); // Clear address search input
+            dispatchCloseBoundaries(); // Collapse boundaries section
+            const selectedCouncilId = Number(feature.properties.council_id);
+            const newSelectedCouncil = councils.find(
+              ({ councilId }) => councilId === selectedCouncilId
+            );
             const newSelected = [newSelectedCouncil];
             dispatchUpdateSelectedCouncils(newSelected);
             dispatchUpdateUnselectedCouncils(councils);
@@ -460,40 +464,37 @@ class Map extends React.Component {
     }
   };
 
-  debouncedOnClick = debounce(this.onClick)
+  debouncedOnClick = debounce(this.onClick);
 
-  onChangeSearchTab = tab => {
+  onChangeSearchTab = (tab) => {
     this.setState({ geoFilterType: tab });
     this.reset();
   };
-  
+
   // Address Search event handler
   // An Address Search will triger the onGeocoderResult event
   onGeocoderResult = ({ result }) => {
-    const { 
-      dispatchGetNcByLngLat, 
+    const {
+      dispatchGetNcByLngLat,
       dispatchUpdateNcId,
-      dispatchCloseBoundaries
+      dispatchCloseBoundaries,
     } = this.props;
 
     // Reset boundaries input
-    this.resetBoundaries()
-    
+    this.resetBoundaries();
+
     // Collapse boundaries section
-    dispatchCloseBoundaries()
+    dispatchCloseBoundaries();
 
     // Reset map & zoom out
-    this.reset()
+    this.reset();
 
     if (result.properties.type === GEO_FILTER_TYPES.nc) {
       this.setState({ address: null });
       dispatchUpdateNcId(result.id);
-    } 
-    else {  // When result.properties.type does not equal "District"
-      const address = result.place_name
-        .split(',')
-        .slice(0, -2)
-        .join(', ');
+    } else {
+      // When result.properties.type does not equal "District"
+      const address = result.place_name.split(',').slice(0, -2).join(', ');
 
       // what does dispatchGetNcByLngLat() do?
       //
@@ -508,7 +509,10 @@ class Map extends React.Component {
       //   `${BASE_URL}/geojson/geocode?latitude=${latitude}&longitude=${longitude}`
       //
       //  and returns the data
-      dispatchGetNcByLngLat({ longitude: result.center[0], latitude: result.center[1] });
+      dispatchGetNcByLngLat({
+        longitude: result.center[0],
+        latitude: result.center[1],
+      });
 
       this.setState({
         address: address,
@@ -549,15 +553,18 @@ class Map extends React.Component {
     const { ncCounts, ccCounts } = this.props;
     const { counts, regionId } = (() => {
       switch (geoFilterType) {
-        case GEO_FILTER_TYPES.nc: return {
-          counts: ncCounts,
-          regionId: filterGeo.properties.nc_id,
-        };
-        case GEO_FILTER_TYPES.cc: return {
-          counts: ccCounts,
-          regionId: filterGeo.properties.name,
-        };
-        default: return {};
+        case GEO_FILTER_TYPES.nc:
+          return {
+            counts: ncCounts,
+            regionId: filterGeo.properties.nc_id,
+          };
+        case GEO_FILTER_TYPES.cc:
+          return {
+            counts: ccCounts,
+            regionId: filterGeo.properties.name,
+          };
+        default:
+          return {};
       }
     })();
 
@@ -574,17 +581,16 @@ class Map extends React.Component {
 
     // use pre-calculated values for nc and cc filters if available
     if (
-      filterGeo && (
-        geoFilterType === GEO_FILTER_TYPES.nc && ncCounts ||
-        geoFilterType === GEO_FILTER_TYPES.cc && ccCounts
-      )
+      filterGeo &&
+      ((geoFilterType === GEO_FILTER_TYPES.nc && ncCounts) ||
+        (geoFilterType === GEO_FILTER_TYPES.cc && ccCounts))
     )
       return this.setState({
         filteredRequestCounts: this.getDistrictCounts(
           geoFilterType,
           filterGeo,
-          selectedTypes,
-        )
+          selectedTypes
+        ),
       });
 
     // otherwise, count up the filtered requests
@@ -594,8 +600,9 @@ class Map extends React.Component {
     if (selectedTypes.length < Object.keys(REQUEST_TYPES).length)
       filteredRequests = {
         ...filteredRequests,
-        features: filteredRequests.features
-          .filter(r => selectedTypes.includes(r.properties.type))
+        features: filteredRequests.features.filter((r) =>
+          selectedTypes.includes(r.properties.type)
+        ),
       };
 
     // filter by geo if necessary
@@ -622,6 +629,7 @@ class Map extends React.Component {
       requestTypes,
       selectedNcId,
       councils,
+      conn, // database connection
     } = this.props;
 
     const {
@@ -643,33 +651,33 @@ class Map extends React.Component {
     const { classes } = this.props;
 
     return (
-      <div className={classes.root} ref={el => this.mapContainer = el} >
+      <div className={classes.root} ref={(el) => (this.mapContainer = el)}>
         <RequestsLayer
-          ref={el => this.requestsLayer = el}
+          ref={(el) => (this.requestsLayer = el)}
           activeLayer={activeRequestsLayer}
           selectedTypes={selectedTypes}
           colorScheme={colorScheme}
           requestTypes={requestTypes}
         />
         <AddressLayer
-          ref={el => this.addressLayer = el}
+          ref={(el) => (this.addressLayer = el)}
           // visible={geoFilterType === GEO_FILTER_TYPES.address}
           visible
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
         <BoundaryLayer
-          ref={el => this.ncLayer = el}
+          ref={(el) => (this.ncLayer = el)}
           // visible={geoFilterType === GEO_FILTER_TYPES.nc}
           visible
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
         <BoundaryLayer
-          ref={el => this.ccLayer = el}
+          ref={(el) => (this.ccLayer = el)}
           visible={geoFilterType === GEO_FILTER_TYPES.cc}
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
-        <div ref={el => this.requestDetail = el}>
-          <RequestDetail requestId={selectedRequestId} />
+        <div ref={(el) => (this.requestDetail = el)}>
+          <RequestDetail requestId={selectedRequestId} conn={conn} />
         </div>
         {this.state.mapReady && requestTypes && (
           <>
@@ -689,14 +697,13 @@ class Map extends React.Component {
                 onReset={this.reset}
                 canReset={!!filterGeo && canReset}
               />
-              <FilterMenu 
-                resetMap={this.reset} 
+              <FilterMenu
+                resetMap={this.reset}
                 resetAddressSearch={this.resetAddressSearch}
               />
               {/* {
                 (selectedNc || address) && <LocationDetail address={address} nc={selectedNc} />
               } */}
-
             </div>
             {/* <MapLayers
               selectedTypes={selectedTypes}
@@ -727,7 +734,7 @@ Map.propTypes = {
 
 Map.defaultProps = {};
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   ncBoundaries: state.metadata.ncGeojson,
   requestTypes: state.metadata.requestTypes,
   councils: state.metadata.councils,
@@ -735,15 +742,19 @@ const mapStateToProps = state => ({
   ncId: state.data.selectedNcId,
 });
 
-const mapDispatchToProps = dispatch => ({
-  dispatchGetNcByLngLat: coords => dispatch(getNcByLngLat(coords)),
-  dispatchUpdateNcId: id => dispatch(updateNcId(id)),
-  dispatchUpdateSelectedCouncils: councils => dispatch(updateSelectedCouncils(councils)),
-  dispatchUpdateUnselectedCouncils: councils => dispatch(updateUnselectedCouncils(councils)),
+const mapDispatchToProps = (dispatch) => ({
+  dispatchGetNcByLngLat: (coords) => dispatch(getNcByLngLat(coords)),
+  dispatchUpdateNcId: (id) => dispatch(updateNcId(id)),
+  dispatchUpdateSelectedCouncils: (councils) =>
+    dispatch(updateSelectedCouncils(councils)),
+  dispatchUpdateUnselectedCouncils: (councils) =>
+    dispatch(updateUnselectedCouncils(councils)),
   dispatchCloseBoundaries: () => dispatch(closeBoundaries()),
 });
 
 // We need to specify forwardRef to allow refs on connected components.
 // See https://github.com/reduxjs/react-redux/issues/1291#issuecomment-494185126
 // for more info.
-export default connect(mapStateToProps, mapDispatchToProps, null, { forwardRef: true })(withStyles(styles)(Map));
+export default connect(mapStateToProps, mapDispatchToProps, null, {
+  forwardRef: true,
+})(withStyles(styles)(Map));

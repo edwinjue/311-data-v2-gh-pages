@@ -1,4 +1,4 @@
-import tempTypes from '../tempTypes';
+import tempTypes from '@data/requestTypes';
 
 export const types = {
   GET_METADATA_REQUEST: 'GET_METADATA_REQUEST',

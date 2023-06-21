@@ -7,7 +7,8 @@ const settings = {
         trailing: false, // calls function after last input event fired (Not React-friendly)
       },
     },
-    eventName: { // to keep event handler names consistent throughout our codebase
+    eventName: {
+      // to keep event handler names consistent throughout our codebase
       reset: 'reset',
     },
   },

@@ -1,17 +1,20 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import moment from 'moment';
-import { getPinInfoRequest } from '@reducers/data';
+import { updatePinInfo } from '@reducers/data';
 import toTitleCase from '@utils/toTitleCase';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import ddbh from '@utils/duckDbHelpers.js';
+import { isObjectEmpty } from '@utils';
 
+// Your styles here
 const styles = theme => ({
   loader: {
     margin: 10,
@@ -50,15 +53,42 @@ const styles = theme => ({
   },
 });
 
-class RequestDetail extends React.Component {
-  componentDidUpdate(prev) {
-    const { requestId, pinsInfo, dispatchGetPinInfo } = this.props;
-    if (requestId === prev.requestId) return;
+const RequestDetail = ({
+  classes,
+  requestId,
+  pinsInfo,
+  requestTypes,
+  agencies,
+  // dispatchGetPinInfoRequest,
+  dispatchUpdatePinInfo,
+  conn,
+}) => {
+  const getPinInfo = useCallback(async () => {
+    const getPinsInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
 
-    if (requestId && !pinsInfo[requestId]) dispatchGetPinInfo(requestId);
-  }
+    const pinsInfoAsArrowTable = await conn.query(getPinsInfoSQL);
+    const newPinsInfo = ddbh.getTableData(pinsInfoAsArrowTable);
 
-  renderDaysOpen = days => {
+    if (
+      !!newPinsInfo === true
+      && Array.isArray(newPinsInfo)
+      && newPinsInfo.length > 0
+    ) {
+      dispatchUpdatePinInfo(newPinsInfo[0]);
+    }
+  }, [requestId, conn, dispatchUpdatePinInfo]);
+
+  useEffect(() => {
+    async function fetchPins() {
+      if (requestId) {
+        await getPinInfo(requestId);
+      }
+    }
+
+    fetchPins();
+  }, [requestId, getPinInfo]);
+
+  const renderDaysOpen = days => {
     switch (days) {
       case 0:
         return 'today';
@@ -67,163 +97,135 @@ class RequestDetail extends React.Component {
       default:
         return `${days} days`;
     }
-  }
+  };
 
-  render() {
-    const {
-      classes, requestId, pinsInfo, requestTypes, agencies,
-    } = this.props;
-
-    if (!requestId) return null;
-
-    if (!pinsInfo[requestId]) {
-      return (
-        <>
-          <CircularProgress
-            className={classes.loader}
-            size={30}
-            color="inherit"
-          />
-          <div className={classes.loaderText}>loading...</div>
-        </>
-      );
-    }
-
-    const {
-      srnumber,
-      councilName,
-      typeName,
-      typeId: requestTypeId,
-      agencyId: aId,
-      agencyName,
-      sourceName,
-      createdDate,
-      closedDate,
-      address,
-    } = pinsInfo[requestId];
-
-    // regex fix to replace "/" in typeName
-    const formattedTypeName = typeName.split('/').join(' ');
-
-    const { color } = requestTypes.find(({ typeId }) => typeId === requestTypeId);
-    const { website } = agencies.find(({ agencyId }) => agencyId === aId);
-    const daysOpen = moment().diff(moment(createdDate), 'days');
-
+  if (!requestId) return null;
+  if (isObjectEmpty(pinsInfo)) {
     return (
-      <div className={classes.popupContent}>
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="center"
-        >
-          <Grid className={classes.requestType} item>
-            {formattedTypeName}
-          </Grid>
-          <Grid item>
-            <FiberManualRecordIcon
-              className={classes.icon}
-              style={{
-                color,
-                fontSize: 16,
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Divider className={classes.divider} />
-        <p className={classes.info1}>{toTitleCase(address)}</p>
-        <p className={classes.councilName}>{councilName}</p>
-        <Grid
-          className={classes.info2}
-          container
-          direction="row"
-          justify="space-between"
-          alignItems="flex-start"
-        >
-          <Grid item xs={6}>Service request:</Grid>
-          <Grid item xs={6} style={{ textAlign: 'right' }}>
-            {srnumber}
-          </Grid>
-          <Grid item xs={6}>
-            Reported on:
-          </Grid>
-          <Grid
-            item
-            xs={6}
-            style={{ textAlign: 'right' }}
-          >
-            {moment(createdDate).format('l')}
-          </Grid>
-          {
-            closedDate ? (
-              <>
-                <Grid item xs={6}>
-                  Closed on:
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  style={{ textAlign: 'right' }}
-                >
-                  {moment(closedDate).format('l')}
-                </Grid>
-              </>
-            ) : (
-              <>
-                <Grid item xs={6}>
-                  Status:
-                </Grid>
-                <Grid
-                  item
-                  xs={6}
-                  style={{ textAlign: 'right' }}
-                >
-                  {`Open (${this.renderDaysOpen(daysOpen)})`}
-                </Grid>
-              </>
-            )
-          }
-          <Grid item xs={6}>Source:</Grid>
-          <Grid item xs={6} style={{ textAlign: 'right' }}>
-            {sourceName}
-          </Grid>
-          <Grid item xs={3}>Agency:</Grid>
-          <Grid item xs={9} style={{ textAlign: 'right' }}>
-            <Link
-              href={website}
-              aria-label={`${agencyName} website`}
-              target="_blank"
-              rel="noopener"
-              color="inherit"
-              underline="always"
-            >
-              {agencyName}
-            </Link>
-          </Grid>
-        </Grid>
-      </div>
+      <>
+        <CircularProgress
+          className={classes.loader}
+          size={30}
+          color="inherit"
+        />
+        <div className={classes.loaderText}>loading...</div>
+      </>
     );
   }
-}
 
-const mapStateToProps = state => ({
-  pinsInfo: state.data.pinsInfo,
-  requestTypes: state.metadata.requestTypes,
-  agencies: state.metadata.agencies,
-});
+  const {
+    SRNumber: srnumber,
+    NCName: councilName,
+    RequestType: typeName,
+    Owner: agencyName,
+    RequestSource: sourceName,
+    CreatedDate: createdDate,
+    ClosedDate: closedDate,
+    Address: address,
+  } = pinsInfo;
 
-const mapDispatchToProps = dispatch => ({
-  dispatchGetPinInfo: srnumber => dispatch(getPinInfoRequest(srnumber)),
-});
+  // regex fix to replace "/" in typeName
+  const formattedTypeName = typeName.split('/').join(' ');
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(RequestDetail));
+  const { color } = requestTypes.find(({ socrataNames }) => socrataNames
+      .map(socrataName => socrataName.toLowerCase().trim())
+      .includes(typeName.toLowerCase().trim()));
+
+  const { website } = agencies.find(
+    ({ socrataOwner }) => socrataOwner.trim() === agencyName.toUpperCase().trim(),
+  );
+
+  const daysOpen = moment().diff(moment(createdDate), 'days');
+
+  return (
+    <div className={classes.popupContent}>
+      <Grid container direction="row" justify="flex-start" alignItems="center">
+        <Grid className={classes.requestType} item>
+          {formattedTypeName}
+        </Grid>
+        <Grid item>
+          <FiberManualRecordIcon
+            className={classes.icon}
+            style={{
+              color,
+              fontSize: 16,
+            }}
+          />
+        </Grid>
+      </Grid>
+      <Divider className={classes.divider} />
+      <p className={classes.info1}>{toTitleCase(address)}</p>
+      <p className={classes.councilName}>{councilName}</p>
+      <Grid
+        className={classes.info2}
+        container
+        direction="row"
+        justify="space-between"
+        alignItems="flex-start"
+      >
+        <Grid item xs={6}>
+          Service request:
+        </Grid>
+        <Grid item xs={6} style={{ textAlign: 'right' }}>
+          {srnumber}
+        </Grid>
+        <Grid item xs={6}>
+          Reported on:
+        </Grid>
+        <Grid item xs={6} style={{ textAlign: 'right' }}>
+          {moment(createdDate).format('l')}
+        </Grid>
+        {closedDate ? (
+          <>
+            <Grid item xs={6}>
+              Closed on:
+            </Grid>
+            <Grid item xs={6} style={{ textAlign: 'right' }}>
+              {moment(closedDate).format('l')}
+            </Grid>
+          </>
+        ) : (
+          <>
+            <Grid item xs={6}>
+              Status:
+            </Grid>
+            <Grid item xs={6} style={{ textAlign: 'right' }}>
+              {`Open (${renderDaysOpen(daysOpen)})`}
+            </Grid>
+          </>
+        )}
+        <Grid item xs={6}>
+          Source:
+        </Grid>
+        <Grid item xs={6} style={{ textAlign: 'right' }}>
+          {sourceName}
+        </Grid>
+        <Grid item xs={3}>
+          Agency:
+        </Grid>
+        <Grid item xs={9} style={{ textAlign: 'right' }}>
+          <Link
+            href={website}
+            aria-label={`${agencyName} website`}
+            target="_blank"
+            rel="noopener"
+            color="inherit"
+            underline="always"
+          >
+            {agencyName}
+          </Link>
+        </Grid>
+      </Grid>
+    </div>
+  );
+};
 
 RequestDetail.propTypes = {
-  requestId: PropTypes.number,
+  requestId: PropTypes.string,
   pinsInfo: PropTypes.shape({}),
   requestTypes: PropTypes.arrayOf(PropTypes.shape({})),
   agencies: PropTypes.arrayOf(PropTypes.shape({})),
-  dispatchGetPinInfo: PropTypes.func.isRequired,
+  dispatchUpdatePinInfo: PropTypes.func.isRequired,
 };
 
 RequestDetail.defaultProps = {
@@ -232,3 +234,18 @@ RequestDetail.defaultProps = {
   agencies: null,
   requestTypes: null,
 };
+
+const mapStateToProps = state => ({
+  pinsInfo: state.data.pinsInfo,
+  requestTypes: state.metadata.requestTypes,
+  agencies: state.metadata.agencies,
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatchUpdatePinInfo: pinInfo => dispatch(updatePinInfo(pinInfo)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withStyles(styles)(RequestDetail));
