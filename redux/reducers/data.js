@@ -118,7 +118,7 @@ export const gitResponseFailure = error => ({
 });
 
 const initialState = {
-  isMapLoading: false,
+  isMapLoading: true,
   error: null,
   pins: [],
   pinsInfo: {},

@@ -534,6 +534,7 @@ class MapContainer extends React.Component {
           exportMap={dispatchTrackMapExport}
           selectedTypes={selectedTypes}
           initialState={this.initialState}
+          conn={this.conn}  
         />
         <CookieNotice />
         {isMapLoading && (
