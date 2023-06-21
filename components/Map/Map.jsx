@@ -247,7 +247,8 @@ class Map extends React.Component {
 
       if (
         this.initialState.councilId &&
-        councils?.length > 0 &&
+        !!councils?.length === true && 
+        councils.length > 0 &&
         !this.hasSetInitialNCView &&
         ncBoundaries
       ) {
@@ -680,8 +681,7 @@ class Map extends React.Component {
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
         <div ref={(el) => (this.requestDetail = el)}>
-          {/* <RequestDetail requestId={selectedRequestId} /> */}
-          <>Hello World</>
+          <RequestDetail requestId={selectedRequestId} />
         </div>
         {this.state.mapReady && requestTypes && (
           <>
