@@ -64,17 +64,21 @@ const RequestDetail = ({
   conn,
 }) => {
   const getPinInfo = useCallback(async () => {
-    const getPinsInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
+    try {
+      const getPinsInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
 
-    const pinsInfoAsArrowTable = await conn.query(getPinsInfoSQL);
-    const newPinsInfo = ddbh.getTableData(pinsInfoAsArrowTable);
+      const pinsInfoAsArrowTable = await conn.query(getPinsInfoSQL);
+      const newPinsInfo = ddbh.getTableData(pinsInfoAsArrowTable);
 
-    if (
-      !!newPinsInfo === true
-      && Array.isArray(newPinsInfo)
-      && newPinsInfo.length > 0
-    ) {
-      dispatchUpdatePinInfo(newPinsInfo[0]);
+      if (
+        !!newPinsInfo === true
+        && Array.isArray(newPinsInfo)
+        && newPinsInfo.length > 0
+      ) {
+        dispatchUpdatePinInfo(newPinsInfo[0]);
+      }
+    } catch (e) {
+      console.error('RequestDetail: Error occurred: ', e);
     }
   }, [requestId, conn, dispatchUpdatePinInfo]);
 
