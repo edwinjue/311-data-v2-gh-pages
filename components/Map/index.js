@@ -112,6 +112,8 @@ class MapContainer extends React.Component {
 
   dbInitialize = async () => {
     try {
+      console.log('Loading db...');
+
       const DUCKDB_CONFIG = await duckdb.selectBundle({
         mvp: {
           mainModule: './duckdb.wasm',
@@ -377,7 +379,6 @@ class MapContainer extends React.Component {
 
   duckDbGetAllRequests = async (startDate, endDate) => {
     try {
-      console.log('Loading db...');
       const startTime = performance.now();
 
       // Execute a SELECT query from 'requests' table
