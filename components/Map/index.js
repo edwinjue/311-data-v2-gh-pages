@@ -38,13 +38,19 @@ const hostname =
 
 // List of remote dataset locations used by db.registerFileURL
 const datasets = {
-  // this project's 'public' folder
-  ghYtd: `${hostname}/requests.parquet`,
-  // huggingface
-  hfYtd:
-    'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
-  hfLastMonth:
-    'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
+  parquet: {
+    // this project's 'public' folder
+    ghYtd: `${hostname}/requests.parquet`,
+    // huggingface
+    hfYtd:
+      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
+    hfLastMonth:
+      'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
+  },
+  csv: {
+    hfYtd:
+      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/main/2023.csv',
+  },
 };
 
 // We make API requests on a per-day basis. On average, there are about 4k
@@ -137,17 +143,26 @@ class MapContainer extends React.Component {
         DUCKDB_CONFIG.pthreadWorker
       );
 
+      // await this.db.registerFileURL(
+      //   'requests.parquet',
+      //   datasets.parquet.hfYtd,
+      //   4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
+      // );
+
       await this.db.registerFileURL(
-        'requests.parquet',
-        datasets.hfYtd,
+        'requests.csv',
+        datasets.csv.hfYtd,
         4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
       );
+
       // Create db connection
       this.conn = await this.db.connect();
 
       // Create the 'requests' table.
       const createSQL =
-        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+        // 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+        'CREATE TABLE requests AS SELECT * FROM "requests.csv"';
+
       await this.conn.query(createSQL);
     } catch (e) {
       console.error('Map/index.js: Error occurred: ', e);
@@ -156,6 +171,7 @@ class MapContainer extends React.Component {
 
   dbTearDown = async () => {
     try {
+      console.log('Tearing down db...');
       if (this.db) await this.db.terminate();
       if (this.conn) await this.conn.close();
       if (this.worker) await this.worker.terminate();
