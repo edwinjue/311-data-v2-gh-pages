@@ -77,6 +77,8 @@ class MapContainer extends React.Component {
     this.db = null;
     this.conn = null;
     this.initialState = props.initialState;
+    this.startTime = 0;
+    this.endTime = 0;
   }
 
   async componentDidMount(props) {
@@ -112,6 +114,7 @@ class MapContainer extends React.Component {
 
   dbInitialize = async () => {
     try {
+      this.startTime = performance.now();
       console.log('Loading db...');
 
       const DUCKDB_CONFIG = await duckdb.selectBundle({
@@ -379,8 +382,6 @@ class MapContainer extends React.Component {
 
   duckDbGetAllRequests = async (startDate, endDate) => {
     try {
-      const startTime = performance.now();
-
       // Execute a SELECT query from 'requests' table
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
 
@@ -388,9 +389,11 @@ class MapContainer extends React.Component {
 
       const requestsData = ddbh.getTableData(requestsAsArrowTable);
 
-      const endTime = performance.now(); // end bnechmark
+      this.endTime = performance.now(); // end bnechmark
 
-      console.log(`Time taken to bootstrap db: ${endTime - startTime}ms`);
+      console.log(
+        `Time taken to bootstrap db: ${this.endTime - this.startTime}ms`
+      );
       return requestsData;
     } catch (e) {
       console.error(e);
