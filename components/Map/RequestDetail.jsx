@@ -12,7 +12,7 @@ import Link from '@material-ui/core/Link';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import ddbh from '@utils/duckDbHelpers.js';
-import { isObjectEmpty } from '@utils';
+import { isEmpty } from '@utils';
 
 // Your styles here
 const styles = theme => ({
@@ -104,7 +104,7 @@ const RequestDetail = ({
   };
 
   if (!requestId) return null;
-  if (isObjectEmpty(pinsInfo)) {
+  if (isEmpty(pinsInfo)) {
     return (
       <>
         <CircularProgress
