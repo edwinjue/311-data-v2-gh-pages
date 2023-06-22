@@ -124,7 +124,19 @@ export const createObjFromArrays = ({ keyArray = [], valArray = [] }) => {
   }
 };
 
-export function isObjectEmpty(obj) {
-  if (!!obj === false) return false;
-  return Object.keys(obj).length === 0;
+// returns true if the value provided is empty
+export function isEmpty(value) {
+  // undefined, null, 0, false, NaN, empty strings are considered empty
+  if (!!value === false) return true;
+
+  // an object with no keys is considered empty
+  if (Object.prototype.toString.call(value) === '[object Object]') {
+    return Object.keys(value).length === 0;
+  }
+
+  // an array with no values is considered empty
+  if (Array.isArray(value)) return value.length === 0;
+
+  // not empty
+  return false;
 }
