@@ -7,9 +7,7 @@ import {
   updateUnselectedCouncils,
 } from '@reducers/filters';
 import { closeBoundaries } from '@reducers/ui';
-import {
-  debounce,
-} from '@utils';
+import { debounce } from '@utils';
 import { makeStyles } from '@material-ui/core/styles';
 import not from '@utils/not';
 import BoundariesSection from '@components/main/Desktop/BoundariesSection';
@@ -46,7 +44,9 @@ const CouncilSelector = ({
 
   const handleDelete = e => {
     const deletedCouncilId = Number(e.currentTarget.dataset.id);
-    const newSelected = selected.filter(({ councilId }) => councilId !== deletedCouncilId);
+    const newSelected = selected.filter(
+      ({ councilId }) => councilId !== deletedCouncilId,
+    );
     const newUnselected = not(councils, newSelected, 'councilId');
     dispatchUpdateSelectedCouncils(newSelected);
     dispatchUpdateUnselectedCouncils(newUnselected);
@@ -67,7 +67,9 @@ const CouncilSelector = ({
       // Clear out address search input
       resetAddressSearch();
 
-      const newSelectedCouncil = councils.find(({ councilId }) => councilId === selectedCouncilId);
+      const newSelectedCouncil = councils.find(
+        ({ councilId }) => councilId === selectedCouncilId,
+      );
       const newSelected = [newSelectedCouncil];
       dispatchUpdateSelectedCouncils(newSelected);
       dispatchUpdateUnselectedCouncils(councils);
@@ -87,21 +89,12 @@ const CouncilSelector = ({
       <div className={classes.label}>Boundaries</div>
       <BoundariesSection>
         <BoundariesSection.Display>
-          <SelectedCouncils
-            items={selected}
-            onDelete={debouncedHandleDelete}
-          />
+          <SelectedCouncils items={selected} onDelete={debouncedHandleDelete} />
         </BoundariesSection.Display>
         <BoundariesSection.Collapse>
-          {
-            unselected
-              && (
-                <CouncilsList
-                  items={unselected}
-                  onClick={debouncedHandleSelect}
-                />
-              )
-          }
+          {unselected && (
+            <CouncilsList items={unselected} onClick={debouncedHandleSelect} />
+          )}
         </BoundariesSection.Collapse>
       </BoundariesSection>
     </>
@@ -121,10 +114,7 @@ const mapDispatchToProps = dispatch => ({
   dispatchCloseBoundaries: () => dispatch(closeBoundaries()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(CouncilSelector);
+export default connect(mapStateToProps, mapDispatchToProps)(CouncilSelector);
 
 CouncilSelector.defaultProps = {
   councils: [],
