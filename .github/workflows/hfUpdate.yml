@@ -10,11 +10,18 @@ jobs:
     steps:
     - name: Change to scripts directory
       run: cd scripts/
+      
     - name: Set up Python environment
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
+        
     - name: Install dependencies
       run: pip install -r requirements.txt
+    
+    - name: Setup environment
+      run: |
+        echo "HUGGINGFACE_LOGIN_TOKEN=${{ secrets.HUGGINGFACE_LOGIN_TOKEN }}" > .env
+          
     - name: Run script
       run: python updateHfDataset.py
