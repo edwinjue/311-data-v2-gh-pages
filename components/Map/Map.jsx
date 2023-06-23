@@ -45,7 +45,7 @@ import MapSearch from './controls/MapSearch';
 
 import RequestDetail from './RequestDetail';
 
-import { debounce } from '@utils';
+import { debounce, isEmpty } from '@utils';
 
 import settings from '@settings';
 
@@ -222,20 +222,6 @@ class Map extends React.Component {
         });
       }
 
-      if (this.props.selectedNcId !== prevProps.selectedNcId) {
-        const { councils, selectedNcId } = this.props;
-        const nc = councils.find(({ councilId }) => councilId === selectedNcId);
-        this.setState({ selectedNc: nc });
-        return this.ncLayer.selectRegion(selectedNcId);
-      }
-
-      if (this.props.ncId !== prevProps.ncId) {
-        const { councils, ncId } = this.props;
-        const nc = councils.find(({ councilId }) => councilId === ncId);
-        this.setState({ selectedNc: nc });
-        return this.ncLayer.selectRegion(ncId);
-      }
-
       const {
         dispatchUpdateNcId,
         dispatchUpdateSelectedCouncils,
@@ -270,6 +256,20 @@ class Map extends React.Component {
         }
       }
     });
+
+    if (this.props.selectedNcId !== prevProps.selectedNcId) {
+      const { councils, selectedNcId } = this.props;
+      const nc = councils.find(({ councilId }) => councilId === selectedNcId);
+      this.setState({ selectedNc: nc });
+      return this.ncLayer.selectRegion(selectedNcId);
+    }
+
+    if (this.props.ncId !== prevProps.ncId) {
+      const { councils, ncId } = this.props;
+      const nc = councils.find(({ councilId }) => councilId === ncId);
+      this.setState({ selectedNc: nc });
+      return this.ncLayer.selectRegion(ncId);
+    }
   }
 
   initLayers = (addListeners) => {
@@ -414,7 +414,7 @@ class Map extends React.Component {
 
       if (
         this.props.selectedNcId !== null &&
-        feature.properties.council_id &&
+        !isEmpty(feature.properties.council_id) &&
         this.props.selectedNcId !== feature.properties.council_id
       ) {
         // Since click is for another district
