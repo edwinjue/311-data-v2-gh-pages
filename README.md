@@ -29,16 +29,12 @@ Our mission is to create a user-friendly platform for anyone interested in explo
 * Redux
 * Material-UI 4.x
 
-[See here](https://github.com/edwinjue/311-data-v2-server#311-data-v2-server) for more information about 311 Data server technology.
-
 ### Data Analysis
 
 * Python
 * Pandas/Numpy/Matplotlib
 * Google Collab/Jupyter Notebook
-
-
-[See here](docs/data_loading.md) for more information about 311 Data project data analysis.
+* Observable
 
 ### UI/UX
 
