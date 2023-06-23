@@ -20,7 +20,7 @@ Our application is open source, built and maintaned by volunteers throughout our
 
 ![image](https://user-images.githubusercontent.com/1448719/233575938-ce84a530-39ff-484e-a848-56121a40fe51.png)
 
-Our mission is to create a user-friendly platform for anyone interested in exploring 311 service requests so that they can immediately gain actionable insights. We are looking for sponsors who can support our efforts and help us scale our impact. If you are interested in learning more about our project, would like to volunteer or become a sponsor, please contact us on github. 
+Our mission is to create a user-friendly platform for anyone interested in exploring 311 service requests so that they can immediately gain actionable insights. We are looking for sponsors who can support our efforts and help us scale our impact. If you are interested in learning more about our project, would like to volunteer or become a sponsor, please email hungrylulu8@gmail.com. 
 
 ## Project Technology
 * Node.js
