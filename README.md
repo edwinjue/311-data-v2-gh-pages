@@ -32,8 +32,8 @@ Our mission is to create a user-friendly platform for anyone interested in explo
 ### Data Analysis
 
 * Python
-* Pandas/Numpy/Matplotlib
-* Google Collab/Jupyter Notebook
+* Polars/Pandas/Numpy/Matplotlib
+* Google Colab
 * Observable
 
 ### UI/UX
