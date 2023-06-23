@@ -2,7 +2,7 @@ name: Update Huggingface Dataset
 
 on:
   schedule:
-    - cron: '10 7 * * *' # once daily at 10:10pm PST (7 UTC)
+    - cron: '10 10 * * *' # once daily at 10:10pm PST (5 UTC)
 
 jobs:
   test_schedule:
