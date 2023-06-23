@@ -143,25 +143,25 @@ class MapContainer extends React.Component {
         DUCKDB_CONFIG.pthreadWorker
       );
 
-      // await this.db.registerFileURL(
-      //   'requests.parquet',
-      //   datasets.parquet.hfYtd,
-      //   4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
-      // );
-
       await this.db.registerFileURL(
-        'requests.csv',
-        datasets.csv.hfYtd,
+        'requests.parquet',
+        datasets.parquet.hfYtd,
         4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
       );
+
+      // await this.db.registerFileURL(
+      //   'requests.csv',
+      //   datasets.csv.hfYtd,
+      //   4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
+      // );
 
       // Create db connection
       this.conn = await this.db.connect();
 
       // Create the 'requests' table.
       const createSQL =
-        // 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
-        'CREATE TABLE requests AS SELECT * FROM "requests.csv"';
+        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
+      // 'CREATE TABLE requests AS SELECT * FROM "requests.csv"';
 
       await this.conn.query(createSQL);
     } catch (e) {
