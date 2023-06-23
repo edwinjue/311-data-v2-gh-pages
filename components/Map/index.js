@@ -39,8 +39,8 @@ const hostname =
 // List of remote dataset locations used by db.registerFileURL
 const datasets = {
   parquet: {
-    // this project's 'public' folder
-    ghYtd: `${hostname}/requests.parquet`,
+    // github
+    ghYtd: `${hostname}/requests.parquet`, // year-to-date
     // huggingface
     hfYtd:
       'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
@@ -48,8 +48,9 @@ const datasets = {
       'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
   },
   csv: {
+    // huggingface
     hfYtd:
-      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/main/2023.csv',
+      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/main/2023.csv', // year-to-date
   },
 };
 
@@ -143,12 +144,14 @@ class MapContainer extends React.Component {
         DUCKDB_CONFIG.pthreadWorker
       );
 
+      // register parquet
       await this.db.registerFileURL(
         'requests.parquet',
         datasets.parquet.hfYtd,
         4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
       );
 
+      // register csv
       // await this.db.registerFileURL(
       //   'requests.csv',
       //   datasets.csv.hfYtd,
@@ -160,8 +163,8 @@ class MapContainer extends React.Component {
 
       // Create the 'requests' table.
       const createSQL =
-        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"';
-      // 'CREATE TABLE requests AS SELECT * FROM "requests.csv"';
+        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"'; // parquet
+      // 'CREATE TABLE requests AS SELECT * FROM "requests.csv"'; // csv
 
       await this.conn.query(createSQL);
     } catch (e) {
