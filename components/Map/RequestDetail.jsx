@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useCallback } from 'react';
+import React, { useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import DbContext from '@db/DbContext';
 import ddbh from '@utils/duckDbHelpers.js';
 import { isEmpty } from '@utils';
 
@@ -61,8 +62,8 @@ const RequestDetail = ({
   agencies,
   // dispatchGetPinInfoRequest,
   dispatchUpdatePinInfo,
-  conn,
 }) => {
+  const { conn } = useContext(DbContext);
   const getPinInfo = useCallback(async () => {
     try {
       const getPinsInfoSQL = `SELECT * FROM requests WHERE TRIM(SRNumber) = '${requestId}'`;
