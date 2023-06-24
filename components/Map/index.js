@@ -63,10 +63,20 @@ class MapContainer extends React.Component {
     this.endTime = 0;
   }
 
+  createRequestsTable = async () => {
+    const { conn } = this.context;
+
+    // Create the 'requests' table.
+    const createSQL =
+      'CREATE TABLE requests AS SELECT * FROM "requests.parquet"'; // parquet
+
+    await conn.query(createSQL);
+  };
+
   async componentDidMount(props) {
-    console.log(this.context);
     this.isSubscribed = true;
     this.processSearchParams();
+    await this.createRequestsTable();
     await this.setData();
   }
 
@@ -312,7 +322,6 @@ class MapContainer extends React.Component {
   duckDbGetAllRequests = async (startDate, endDate) => {
     try {
       const { conn } = this.context;
-      console.log({ conn });
 
       // Execute a SELECT query from 'requests' table
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;

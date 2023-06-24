@@ -62,11 +62,6 @@ const DbProvider = ({ children }) => {
         // Create db connection
         const newConn = await newDb.connect();
 
-        // Create the 'requests' table.
-        const createSQL = 'CREATE TABLE requests AS SELECT * FROM "requests.parquet"'; // parquet
-
-        await newConn.query(createSQL);
-
         setDb(newDb);
         setConn(newConn);
         setWorker(newWorker);
@@ -99,7 +94,7 @@ const DbProvider = ({ children }) => {
       }
       tearDown();
     };
-  }, [conn, db, worker]);
+  }, []);
 
   //   block until db, conn, worker are available
   if (!db || !conn || !worker) {
