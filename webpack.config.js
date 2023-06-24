@@ -30,6 +30,7 @@ module.exports = {
       "@assets": path.resolve(__dirname, "assets"),
       "@utils": path.resolve(__dirname, "utils"),
       "@settings": path.resolve(__dirname, "settings"),
+      "@db": path.resolve(__dirname, "components/db"),
     },
   },
   module: {

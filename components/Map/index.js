@@ -25,34 +25,8 @@ import CookieNotice from '../main/CookieNotice';
 import Map from './Map';
 import moment from 'moment';
 import gif from '@assets/loading.gif';
-
-import * as duckdb from '@duckdb/duckdb-wasm';
-import Worker from 'web-worker';
 import ddbh from '@utils/duckDbHelpers.js';
-
-const { protocol, host } = window.location;
-const hostname =
-  process.env.NODE_ENV === 'production'
-    ? process.env.PUBLIC_URL // homepage property in package.json
-    : `${protocol}//${host}`;
-
-// List of remote dataset locations used by db.registerFileURL
-const datasets = {
-  parquet: {
-    // github
-    ghYtd: `${hostname}/requests.parquet`, // year-to-date
-    // huggingface
-    hfYtd:
-      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-2023/csv-train.parquet', // year-to-date
-    hfLastMonth:
-      'https://huggingface.co/datasets/edwinjue/311-data-last-month/resolve/refs%2Fconvert%2Fparquet/edwinjue--311-data-last-month/csv-train.parquet', // last month
-  },
-  csv: {
-    // huggingface
-    hfYtd:
-      'https://huggingface.co/datasets/edwinjue/311-data-2023/resolve/main/2023.csv', // year-to-date
-  },
-};
+import DbContext from '@db/DbContext';
 
 // We make API requests on a per-day basis. On average, there are about 4k
 // requests per day, so 10k is a large safety margin.
@@ -65,6 +39,10 @@ const styles = (theme) => ({
 });
 
 class MapContainer extends React.Component {
+  // Note: 'this.context' is defined using the static contextType property
+  // static contextType assignment allows MapContainer to access values provided by DbContext.Provider
+  static contextType = DbContext;
+
   constructor(props) {
     super(props);
 
@@ -80,18 +58,15 @@ class MapContainer extends React.Component {
     // converted and stored in the Redux store.
     this.rawRequests = [];
     this.isSubscribed = null;
-    this.worker = null;
-    this.db = null;
-    this.conn = null;
     this.initialState = props.initialState;
     this.startTime = 0;
     this.endTime = 0;
   }
 
   async componentDidMount(props) {
+    console.log(this.context);
     this.isSubscribed = true;
     this.processSearchParams();
-    await this.dbInitialize();
     await this.setData();
   }
 
@@ -116,72 +91,7 @@ class MapContainer extends React.Component {
 
   async componentWillUnmount() {
     this.isSubscribed = false;
-    await this.dbTearDown();
   }
-
-  dbInitialize = async () => {
-    try {
-      this.startTime = performance.now();
-      console.log('Loading db...');
-
-      const DUCKDB_CONFIG = await duckdb.selectBundle({
-        mvp: {
-          mainModule: './duckdb.wasm',
-          mainWorker: './duckdb-browser.worker.js',
-        },
-        eh: {
-          mainModule: './duckdb-eh.wasm',
-          mainWorker: './duckdb-browser-eh.worker.js',
-        },
-      });
-
-      // Initialize a new duckdb instance
-      const logger = new duckdb.ConsoleLogger();
-      this.worker = new Worker(DUCKDB_CONFIG.mainWorker);
-      this.db = new duckdb.AsyncDuckDB(logger, this.worker);
-      await this.db.instantiate(
-        DUCKDB_CONFIG.mainModule,
-        DUCKDB_CONFIG.pthreadWorker
-      );
-
-      // register parquet
-      await this.db.registerFileURL(
-        'requests.parquet',
-        datasets.parquet.hfYtd,
-        4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
-      );
-
-      // register csv
-      // await this.db.registerFileURL(
-      //   'requests.csv',
-      //   datasets.csv.hfYtd,
-      //   4 // HTTP = 4. For more options: https://tinyurl.com/DuckDBDataProtocol
-      // );
-
-      // Create db connection
-      this.conn = await this.db.connect();
-
-      // Create the 'requests' table.
-      const createSQL =
-        'CREATE TABLE requests AS SELECT * FROM "requests.parquet"'; // parquet
-      // 'CREATE TABLE requests AS SELECT * FROM "requests.csv"'; // csv
-
-      await this.conn.query(createSQL);
-    } catch (e) {
-      console.error('Map/index.js: Error occurred: ', e);
-    }
-  };
-
-  dbTearDown = async () => {
-    try {
-      console.log('Tearing down db...');
-      if (this.db) await this.db.terminate();
-      if (this.conn) await this.conn.close();
-      if (this.worker) await this.worker.terminate();
-    } catch (e) {
-      console.error('Map/index.js: Error occurred: ', e);
-    }
-  };
 
   processSearchParams = () => {
     // Dispatch to edit Redux store with url search params
@@ -401,10 +311,13 @@ class MapContainer extends React.Component {
 
   duckDbGetAllRequests = async (startDate, endDate) => {
     try {
+      const { conn } = this.context;
+      console.log({ conn });
+
       // Execute a SELECT query from 'requests' table
       const selectSQL = `SELECT * FROM requests WHERE CreatedDate between '${startDate}' and '${endDate}'`;
 
-      const requestsAsArrowTable = await this.conn.query(selectSQL);
+      const requestsAsArrowTable = await conn.query(selectSQL);
 
       const requestsData = ddbh.getTableData(requestsAsArrowTable);
 
@@ -552,7 +465,6 @@ class MapContainer extends React.Component {
           exportMap={dispatchTrackMapExport}
           selectedTypes={selectedTypes}
           initialState={this.initialState}
-          conn={this.conn}
         />
         <CookieNotice />
         {isMapLoading && (

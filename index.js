@@ -10,8 +10,11 @@ import { CssBaseline } from '@material-ui/core';
 import theme from '@theme/theme';
 import store from '@root/redux/store';
 import App from '@root/App';
+import DbProvider from '@db/DbProvider';
+
 // import HelloWorldWorker from './components/HelloWorldWorker';
 // import DuckDBHelloWorld from './components/DuckDbHelloWorld';
+// import DbConsumerHelloWorld from '@components/DbConsumerHelloWorld';
 
 Sentry.init({
   dsn: process.env.SENTRY_CLIENT_DSN,
@@ -29,12 +32,16 @@ window.theme = theme;
 
 ReactDOM.render(
   <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-      {/* <HelloWorldWorker /> */}
-      {/* <<DuckDBHelloWorld /> */}
-    </ThemeProvider>
+    <DbProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+
+        <App />
+        {/* <HelloWorldWorker /> */}
+        {/* <<DuckDBHelloWorld /> */}
+        {/* <DbConsumerHelloWorld /> */}
+      </ThemeProvider>
+    </DbProvider>
   </Provider>,
   document.getElementById('root'),
 );
