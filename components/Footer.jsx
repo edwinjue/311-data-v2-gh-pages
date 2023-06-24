@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'proptypes';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import DbContext from '@db/DbContext';
+import ddbh from '@utils/duckDbHelpers.js';
+import { isEmpty } from '@utils';
 import SocialMediaLinks from './SocialMediaLinks';
 
 // Footer should make use of style overrides to look the same regardless of light/dark theme.
@@ -48,9 +50,28 @@ const useStyles = makeStyles(theme => ({
 }));
 
 // TODO: check with UI/UX re placement of social media, privacy policy links
-const Footer = ({ lastUpdated }) => {
+const Footer = () => {
   const classes = useStyles();
   const currentDate = new Date();
+  const [lastUpdated, setLastUpdated] = useState('');
+  const { conn } = useContext(DbContext);
+
+  useEffect(() => {
+    const getLastUpdated = async () => {
+      // Create the 'requests' table.
+      const getLastUpdatedSQL = 'select max(createddate) from requests;';
+
+      const lastUpdatedAsArrowTable = await conn.query(getLastUpdatedSQL);
+      const results = ddbh.getTableData(lastUpdatedAsArrowTable);
+
+      if (!isEmpty(results)) {
+        const lastUpdatedValue = results[0];
+        setLastUpdated(lastUpdatedValue);
+      }
+    };
+
+    getLastUpdated();
+  }, [conn]);
 
   return (
     <footer className={classes.footer}>
@@ -86,13 +107,5 @@ const Footer = ({ lastUpdated }) => {
 const mapStateToProps = state => ({
   lastUpdated: state.metadata.lastPulledLocal,
 });
-
-Footer.propTypes = {
-  lastUpdated: PropTypes.string,
-};
-
-Footer.defaultProps = {
-  lastUpdated: undefined,
-};
 
 export default connect(mapStateToProps, null)(Footer);
