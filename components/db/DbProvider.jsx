@@ -94,7 +94,11 @@ const DbProvider = ({ children }) => {
       }
       tearDown();
     };
-  }, [conn, db, worker]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Important: dependency array must be empty or you will get the following error
+  // "cannot send a message since the worker is not set" and app will infinite loop
 
   //   block until db, conn, worker are available
   if (!db || !conn || !worker) {
