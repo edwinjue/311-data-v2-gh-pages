@@ -94,7 +94,7 @@ const DbProvider = ({ children }) => {
       }
       tearDown();
     };
-  }, []);
+  }, [conn, db, worker]);
 
   //   block until db, conn, worker are available
   if (!db || !conn || !worker) {

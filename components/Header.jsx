@@ -73,7 +73,9 @@ const Header = () => {
     <AppBar position="static" className={classes.appBar}>
       <Toolbar>
         <Typography variant="h4" className={classes.title}>
-          <Link to="/" className={classes.link}>311DATA</Link>
+          <Link to="/" className={classes.link}>
+            311DATA
+          </Link>
         </Typography>
         <NavLink className={classes.link} to="/map" activeStyle={activeStyle}>
           <Button className={classes.button}>Map</Button>
@@ -98,14 +100,14 @@ const Header = () => {
           }}
           classes={{ paper: classes.menuPaper }}
         >
-          <Link to="/dashboard/overview-combined">
+          <Link to="/dashboard-overview">
             <MenuItem onClick={handleClose} className={classes.menuItem}>
               Overview
             </MenuItem>
           </Link>
-          <Link to="/dashboard/nc-summary-comparison">
+          <Link to="/dashboard-comparison">
             <MenuItem onClick={handleClose} className={classes.menuItem}>
-              Compare Two Neighborhoods
+              Comparison
             </MenuItem>
           </Link>
         </Menu>
@@ -115,13 +117,25 @@ const Header = () => {
         <NavLink to="/about" className={classes.link} activeStyle={activeStyle}>
           <Button className={classes.button}>About</Button>
         </NavLink>
-        <NavLink to="/research" className={classes.link} activeStyle={activeStyle}>
+        <NavLink
+          to="/research"
+          className={classes.link}
+          activeStyle={activeStyle}
+        >
           <Button className={classes.button}>Research</Button>
         </NavLink>
-        <NavLink to="/privacy" className={classes.link} activeStyle={activeStyle}>
+        <NavLink
+          to="/privacy"
+          className={classes.link}
+          activeStyle={activeStyle}
+        >
           <Button className={classes.button}>Privacy</Button>
         </NavLink>
-        <NavLink to="/contact" className={classes.link} activeStyle={activeStyle}>
+        <NavLink
+          to="/contact"
+          className={classes.link}
+          activeStyle={activeStyle}
+        >
           <Button className={classes.button}>Contact</Button>
         </NavLink>
       </Toolbar>

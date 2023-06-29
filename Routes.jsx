@@ -1,16 +1,14 @@
 import React from 'react';
 import {
-  Switch,
-  Route,
-  Redirect,
-  useLocation,
+  Switch, Route, Redirect, useLocation,
 } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core/styles';
 import theme, { darkTheme } from '@theme/theme';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Desktop from '@components/main/Desktop';
-import Dashboard from '@components/main/Dashboard';
+import DashboardOverview from '@components/main/DashboardOverview';
+import DashboardComparison from '@components/main/DashboardComparison';
 import Privacy from '@components/main/Privacy';
 import Faqs from '@components/main/Faqs';
 import About from '@components/main/About';
@@ -29,9 +27,7 @@ export default function Routes() {
       <ThemeProvider theme={darkTheme}>
         <Paper elevation={0}>
           <Box visibility={pathname !== '/map' ? 'hidden' : 'visible'}>
-            <Desktop
-              initialState={values}
-            />
+            <Desktop initialState={values} />
           </Box>
         </Paper>
       </ThemeProvider>
@@ -40,7 +36,11 @@ export default function Routes() {
       <ThemeProvider theme={theme}>
         <Paper elevation={0}>
           <Switch>
-            <Route path="/dashboard" component={Dashboard} />
+            <Route path="/dashboard-overview" component={DashboardOverview} />
+            <Route
+              path="/dashboard-comparison"
+              component={DashboardComparison}
+            />
             <Route path="/privacy" component={Privacy} />
             <Route path="/faqs" component={Faqs} />
             <Route path="/research" component={Research} />
