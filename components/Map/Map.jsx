@@ -423,8 +423,6 @@ class Map extends React.Component {
 
     //has a district already been selected? if so, proceed
     if (this.hasDistrictSelected()) {
-      console.log(`this.hasDistrictSelected()`);
-
       for (let i = 0; i < features.length; i += 1) {
         // Display pop-ups only for the current district
         if (
@@ -435,11 +433,9 @@ class Map extends React.Component {
         }
 
         if (features[i].layer.id === 'request-circles') {
-          console.group(`inside request-circles`);
           const { coordinates } = features[i].geometry;
           const { requestId, typeId } = features[i].properties;
           this.addPopup(coordinates, requestId);
-          console.groupEnd(`inside request-circles`);
           return;
         }
       }
@@ -447,7 +443,6 @@ class Map extends React.Component {
   };
 
   onMouseLeave = (e) => {
-    console.log('Map.jsx: inside onMouseLeave');
     this.removePopup();
   };
 
@@ -690,7 +685,7 @@ class Map extends React.Component {
       // hoveredRegionName,
       canReset,
       selectedRequestId,
-      selectedNc,
+      // selectedNc,
       selectedTypes,
       address,
     } = this.state;
