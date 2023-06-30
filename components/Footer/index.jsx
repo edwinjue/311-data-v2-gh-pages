@@ -1,12 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
-import DbContext from '@db/DbContext';
-import ddbh from '@utils/duckDbHelpers.js';
-import { isEmpty } from '@utils';
+import LastUpdated from '@components/Footer/LastUpdated';
 import SocialMediaLinks from '@components/Footer/SocialMediaLinks';
 
 // Footer should make use of style overrides to look the same regardless of light/dark theme.
@@ -21,11 +18,6 @@ const useStyles = makeStyles(theme => ({
   },
   footerSpacing: {
     height: theme.footer.height,
-  },
-  lastUpdated: {
-    fontWeight: theme.typography.fontWeightMedium,
-    color: theme.palette.text.dark,
-    lineHeight: theme.footer.height,
   },
   copyright: {
     fontWeight: theme.typography.fontWeightMedium,
@@ -53,53 +45,28 @@ const useStyles = makeStyles(theme => ({
 const Footer = () => {
   const classes = useStyles();
   const currentDate = new Date();
-  const [lastUpdated, setLastUpdated] = useState('');
-  const { conn } = useContext(DbContext);
-
-  useEffect(() => {
-    const getLastUpdated = async () => {
-      // Create the 'requests' table.
-      const getLastUpdatedSQL = 'select max(createddate) from requests;';
-
-      const lastUpdatedAsArrowTable = await conn.query(getLastUpdatedSQL);
-      const results = ddbh.getTableData(lastUpdatedAsArrowTable);
-
-      if (!isEmpty(results)) {
-        const lastUpdatedValue = results[0];
-        setLastUpdated(lastUpdatedValue);
-      }
-    };
-
-    getLastUpdated();
-  }, [conn]);
 
   return (
     <footer className={classes.footer}>
-      {lastUpdated && (
-        <div className={classes.container}>
-          <div className={classes.copyrightContainer}>
-            <Typography variant="body2" className={classes.copyright}>
-              &#169;
-              {currentDate.getFullYear()}
-              &nbsp;311 Data&nbsp;&nbsp;|&nbsp;&nbsp;All Rights
-              Reserved&nbsp;&nbsp;|&nbsp;&nbsp;
-              <Link to="/privacy" className={classes.link}>
-                Privacy Policy
-              </Link>
-              &nbsp;&nbsp;|&nbsp;&nbsp;Powered by volunteers from Hack for LA
-            </Typography>
-          </div>
-          <div>
-            <Typography variant="body2" className={classes.lastUpdated}>
-              Data last updated&nbsp;
-              {moment(lastUpdated).format('MM/DD/YY')}
-            </Typography>
-          </div>
-          <div>
-            <SocialMediaLinks classes={classes} />
-          </div>
+      <div className={classes.container}>
+        <div className={classes.copyrightContainer}>
+          <Typography variant="body2" className={classes.copyright}>
+            &#169;
+            {currentDate.getFullYear()}
+            &nbsp;311 Data&nbsp;&nbsp;|&nbsp;&nbsp;All Rights
+            Reserved&nbsp;&nbsp;|&nbsp;&nbsp;
+            <Link to="/privacy" className={classes.link}>
+              Privacy Policy
+            </Link>
+            &nbsp;&nbsp;|&nbsp;&nbsp;Powered by volunteers from Hack for LA
+          </Typography>
         </div>
-      )}
+
+        <LastUpdated />
+        <div>
+          <SocialMediaLinks classes={classes} />
+        </div>
+      </div>
     </footer>
   );
 };
