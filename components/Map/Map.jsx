@@ -394,6 +394,7 @@ class Map extends React.Component {
     }
   };
 
+  /* Event handlers */
   onClick = (e) => {
     const hoverables = ['nc-fills', 'cc-fills'];
 
@@ -629,7 +630,6 @@ class Map extends React.Component {
       requestTypes,
       selectedNcId,
       councils,
-      conn, // database connection
     } = this.props;
 
     const {
@@ -677,7 +677,7 @@ class Map extends React.Component {
           boundaryStyle={mapStyle === 'dark' ? 'light' : 'dark'}
         />
         <div ref={(el) => (this.requestDetail = el)}>
-          <RequestDetail requestId={selectedRequestId} conn={conn} />
+          <RequestDetail requestId={selectedRequestId} />
         </div>
         {this.state.mapReady && requestTypes && (
           <>
