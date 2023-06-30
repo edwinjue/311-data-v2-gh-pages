@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import DbContext from '@db/DbContext';
 import ddbh from '@utils/duckDbHelpers.js';
 import { isEmpty } from '@utils';
-import SocialMediaLinks from './SocialMediaLinks';
+import SocialMediaLinks from '@components/Footer/SocialMediaLinks';
 
 // Footer should make use of style overrides to look the same regardless of light/dark theme.
 const useStyles = makeStyles(theme => ({

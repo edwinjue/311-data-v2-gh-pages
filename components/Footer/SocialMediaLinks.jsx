@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import TwitterSVG from '../assets/twitter-round.svg';
-import FacebookSVG from '../assets/facebook-round.svg';
+import TwitterSVG from '@assets/twitter-round.svg';
+import FacebookSVG from '@assets/facebook-round.svg';
 
 const useStyles = makeStyles(theme => ({
   socialMedia: {
