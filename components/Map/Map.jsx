@@ -425,7 +425,7 @@ class Map extends React.Component {
     if (this.hasDistrictSelected()) {
       console.log(`this.hasDistrictSelected()`);
 
-      for (let i = 0; i < features.length; i++) {
+      for (let i = 0; i < features.length; i += 1) {
         // Display pop-ups only for the current district
         if (
           features[i].properties.council_id &&
@@ -463,7 +463,7 @@ class Map extends React.Component {
 
     const features = this.getAllFeaturesAtPoint(e.point);
 
-    for (let i = 0; i < features.length; i++) {
+    for (let i = 0; i < features.length; i += 1) {
       const feature = features[i];
 
       if (
