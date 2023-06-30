@@ -467,7 +467,7 @@ class Map extends React.Component {
       const feature = features[i];
 
       if (
-        this.props.selectedNcId !== null &&
+        !isEmpty(this.props.selectedNcId) &&
         !isEmpty(feature.properties.council_id) &&
         this.props.selectedNcId !== feature.properties.council_id
       ) {
