@@ -155,6 +155,8 @@ class Map extends React.Component {
         this.initLayers(true);
 
         map.on('click', this.debouncedOnClick);
+        map.on('mouseenter', 'request-circles', this.onMouseEnter);
+        map.on('mouseleave', 'request-circles', this.onMouseLeave);
 
         map.once('idle', (e) => {
           this.setState({ mapReady: true });
@@ -398,19 +400,59 @@ class Map extends React.Component {
     }
   };
 
-  // Returns an array of mapbox features at the specified point.
+  // returns an array of mapbox features at the specified point.
   getAllFeaturesAtPoint = (point) => {
     return this.map.queryRenderedFeatures(point, {
       layers: featureLayers,
     });
   };
 
-  // Returns true if a district has been selected on the map.
+  // returns true if a district has been selected on the map.
   hasDistrictSelected = () => !!this.state.selectedNc === true;
 
-  /* event handlers */
-  onClick = (e) => {
+  /// EVENT HANDLERS ///
+  onMouseEnter = (e) => {
+    /* handle hover events */
+
+    //get a list of all the map features
     const features = this.getAllFeaturesAtPoint(e.point);
+
+    if (features.length === 0) {
+      return;
+    }
+
+    //has a district already been selected? if so, proceed
+    if (this.hasDistrictSelected()) {
+      console.log(`this.hasDistrictSelected()`);
+
+      for (let i = 0; i < features.length; i++) {
+        // Display pop-ups only for the current district
+        if (
+          features[i].properties.council_id &&
+          this.props.selectedNcId !== features[i].properties.council_id
+        ) {
+          return;
+        }
+
+        if (features[i].layer.id === 'request-circles') {
+          console.group(`inside request-circles`);
+          const { coordinates } = features[i].geometry;
+          const { requestId, typeId } = features[i].properties;
+          this.addPopup(coordinates, requestId);
+          console.groupEnd(`inside request-circles`);
+          return;
+        }
+      }
+    }
+  };
+
+  onMouseLeave = (e) => {
+    console.log('Map.jsx: inside onMouseLeave');
+    this.removePopup();
+  };
+
+  onClick = (e) => {
+    /* handle click events */
     const {
       dispatchUpdateNcId,
       dispatchUpdateSelectedCouncils,
@@ -418,6 +460,8 @@ class Map extends React.Component {
       dispatchCloseBoundaries,
       councils,
     } = this.props;
+
+    const features = this.getAllFeaturesAtPoint(e.point);
 
     for (let i = 0; i < features.length; i++) {
       const feature = features[i];
@@ -464,12 +508,6 @@ class Map extends React.Component {
           default:
             return null;
         }
-      }
-
-      if (feature.layer.id === 'request-circles') {
-        const { coordinates } = feature.geometry;
-        const { requestId, typeId } = feature.properties;
-        return this.addPopup(coordinates, requestId);
       }
     }
   };
