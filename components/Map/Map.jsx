@@ -98,6 +98,10 @@ const styles = (theme) => ({
   },
 });
 
+// Define feature layers
+const hoverables = ['nc-fills', 'cc-fills'];
+const featureLayers = ['request-circles', ...hoverables];
+
 class Map extends React.Component {
   constructor(props) {
     super(props);
@@ -394,14 +398,19 @@ class Map extends React.Component {
     }
   };
 
-  /* Event handlers */
-  onClick = (e) => {
-    const hoverables = ['nc-fills', 'cc-fills'];
-
-    const features = this.map.queryRenderedFeatures(e.point, {
-      layers: ['request-circles', ...hoverables],
+  // Returns an array of mapbox features at the specified point.
+  getAllFeaturesAtPoint = (point) => {
+    return this.map.queryRenderedFeatures(point, {
+      layers: featureLayers,
     });
+  };
 
+  // Returns true if a district has been selected on the map.
+  hasDistrictSelected = () => !!this.state.selectedNc === true;
+
+  /* event handlers */
+  onClick = (e) => {
+    const features = this.getAllFeaturesAtPoint(e.point);
     const {
       dispatchUpdateNcId,
       dispatchUpdateSelectedCouncils,
