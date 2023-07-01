@@ -20,6 +20,7 @@ import { updateMapPosition } from '@reducers/ui';
 import { trackMapExport } from '@reducers/analytics';
 import { INTERNAL_DATE_SPEC } from '../common/CONSTANTS';
 import { getTypeIdFromTypeName } from '@utils';
+import FactModal from '@components/FactModal';
 import CookieNotice from '../main/CookieNotice';
 // import "mapbox-gl/dist/mapbox-gl.css";
 import Map from './Map';
@@ -477,14 +478,17 @@ class MapContainer extends React.Component {
         />
         <CookieNotice />
         {isMapLoading && (
-          <img
-            style={{
-              width: window.innerWidth,
-              height: 16,
-              position: 'absolute',
-            }}
-            src={gif}
-          />
+          <>
+            <FactModal isLoading={isMapLoading} />
+            <img
+              style={{
+                width: window.innerWidth,
+                height: 16,
+                position: 'absolute',
+              }}
+              src={gif}
+            />
+          </>
         )}
       </div>
     );

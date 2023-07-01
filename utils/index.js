@@ -163,3 +163,7 @@ export function removeFromName(name, replaceStrings) {
   });
   return cleanedName;
 }
+
+export function seconds(milliseconds = 0) {
+  return milliseconds * 1000;
+}
