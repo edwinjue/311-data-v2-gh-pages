@@ -30,7 +30,7 @@ import {
   // ccNameFromLngLat,
 } from './districts';
 
-import { pointsWithinGeo } from './geoUtils';
+import { pointsWithinGeo, getNcByLngLatv2 } from './geoUtils';
 
 import RequestsLayer from './layers/RequestsLayer';
 import BoundaryLayer from './layers/BoundaryLayer';
@@ -532,12 +532,22 @@ class Map extends React.Component {
     // Reset map & zoom out
     this.reset();
 
+    console.log({ result });
+    console.log(`result.properties.type=${result.properties.type}`);
+    console.log(`GEO_FILTER_TYPES.nc=${GEO_FILTER_TYPES.nc}`);
+
     if (result.properties.type === GEO_FILTER_TYPES.nc) {
+      console.log('result.properties.type === GEO_FILTER_TYPES.nc');
+      console.log('calling this.setState({ address: null });');
       this.setState({ address: null });
+      console.log(`calling dispatchUpdateNcId(${result.id});`);
       dispatchUpdateNcId(result.id);
     } else {
+      console.log('result.properties.type != GEO_FILTER_TYPES.nc');
       // When result.properties.type does not equal "District"
+      const [longitude, latitude] = result.center;
       const address = result.place_name.split(',').slice(0, -2).join(', ');
+      console.log({ address });
 
       // what does dispatchGetNcByLngLat() do?
       //
@@ -552,17 +562,18 @@ class Map extends React.Component {
       //   `${BASE_URL}/geojson/geocode?latitude=${latitude}&longitude=${longitude}`
       //
       //  and returns the data
-      dispatchGetNcByLngLat({
-        longitude: result.center[0],
-        latitude: result.center[1],
-      });
 
-      this.setState({
-        address: address,
-      });
+      const ncIdOfAddressSearch = getNcByLngLatv2({ longitude, latitude });
+      console.log({ ncIdOfAddressSearch });
+      if (!isEmpty(ncIdOfAddressSearch)) {
+        dispatchUpdateNcId(Number(ncIdOfAddressSearch));
+        this.setState({
+          address: address,
+        });
 
-      // Add that cute House Icon on the map
-      return this.addressLayer.addMarker([result.center[0], result.center[1]]);
+        // Add that cute House Icon on the map
+        return this.addressLayer.addMarker(longitude, latitude);
+      }
     }
   };
 
