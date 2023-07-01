@@ -65,7 +65,14 @@ export function getNcByLngLatv2({
       );
     }
     console.log({ longitude, latitude });
-    const ncGeoArray = ncGeojson.features;
+    const features = ncGeojson.features;
+    console.log({ features });
+
+    // TODO: Be able to handle MultiPolygons instead of skipping over them
+    // [ECHO PARK NC, NC VALLEY VILLAGE] are the only 2 MultiPolygons
+    const ncGeoArray = features.filter(
+      (feature) => feature.geometry.type !== 'MultiPolygon'
+    );
     console.log({ ncGeoArray });
 
     const foundNcGeoObj = ncGeoArray.find((ncGeoObj) =>
