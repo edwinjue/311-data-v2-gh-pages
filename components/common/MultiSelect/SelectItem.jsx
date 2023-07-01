@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 import MenuItem from '@material-ui/core/MenuItem';
 
 const SelectItem = ({
-  text,
-  value,
-  onClick,
-  disabled,
+  text, value, onClick, disabled,
 }) => (
   <MenuItem
     key={text}
@@ -25,10 +22,7 @@ export default SelectItem;
 
 SelectItem.propTypes = {
   text: PropTypes.string,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]).isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onClick: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
 };

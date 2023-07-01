@@ -1,8 +1,7 @@
-import {
-  takeLatest,
-  put,
-  all,
-} from 'redux-saga/effects';
+import { removeFromName, truncateName } from '@utils';
+import settings from '@settings';
+
+import { takeLatest, put, all } from 'redux-saga/effects';
 
 import councils from '@root/data/councils';
 import regions from '@root/data/regions';
@@ -20,11 +19,19 @@ import {
   getMetadataFailure,
 } from '../reducers/metadata';
 
+const getFormattedCouncilNames = () => councils.map(councilObj => ({
+  ...councilObj,
+  councilName: truncateName(
+    removeFromName(councilObj.councilName, ['OWERMENT', 'GRESS', ' NC']),
+    settings.selectItem.maxLen,
+  ),
+}));
+
 function* getMetadata() {
   try {
     yield all([
       put(getMetadataSuccess(metadata)),
-      put(getCouncilsSuccess(councils)),
+      put(getCouncilsSuccess(getFormattedCouncilNames())),
       put(getRegionsSuccess(regions)),
       put(getAgenciesSuccess(agencies)),
       put(getNcGeojsonSuccess(ncGeojson)),

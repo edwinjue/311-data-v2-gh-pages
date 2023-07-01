@@ -12,6 +12,9 @@ const settings = {
       reset: 'reset',
     },
   },
+  selectItem: {
+    maxLen: 28,
+  },
 };
 
 export default settings;

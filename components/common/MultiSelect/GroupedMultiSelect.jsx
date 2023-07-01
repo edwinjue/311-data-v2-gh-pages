@@ -3,18 +3,18 @@ import PropTypes from 'prop-types';
 import SelectGroup from './SelectGroup';
 
 const GroupedMultiSelect = ({
-  items,
-  onChange,
-  groupBy,
-  searchTerm,
+  items, onChange, groupBy, searchTerm,
 }) => {
   const [filtered, setFiltered] = useState(false);
   const [filteredItems, setFilteredItems] = useState([]);
 
-  const groups = items.reduce((acc, item) => ({
-    ...acc,
-    [item[groupBy]]: [...(acc[item[groupBy]] || []), item],
-  }), {});
+  const groups = items.reduce(
+    (acc, item) => ({
+      ...acc,
+      [item[groupBy]]: [...(acc[item[groupBy]] || []), item],
+    }),
+    {},
+  );
 
   useEffect(() => {
     if (searchTerm) {
@@ -36,27 +36,45 @@ const GroupedMultiSelect = ({
       }, {});
       setFilteredItems(filteredGroups);
     }
-  // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [searchTerm]);
 
-  return Object.keys(filtered ? filteredItems : groups).map(name => (
-    <SelectGroup
-      key={name}
-      name={name}
-      items={filtered ? filteredItems[name] : groups[name]}
-      onChange={onChange}
-    />
-  ));
+  const sortByRegionNumber = (a, b) => {
+    // from @data/councils.js, a and b is expected to look like this:
+    //    'REGION 11 - WEST LA'
+    //
+    // so we want to get the region number and sort by it
+
+    // eslint-disable-next-line no-unused-vars
+    const [labelA, regionA, otherA] = a.split(' ');
+    // eslint-disable-next-line no-unused-vars
+    const [labelB, regionB, otherB] = b.split(' ');
+
+    return Number(regionA) - Number(regionB);
+  };
+
+  return Object.keys(filtered ? filteredItems : groups)
+    .sort(sortByRegionNumber)
+    .map(name => (
+      <SelectGroup
+        key={name}
+        name={name}
+        items={filtered ? filteredItems[name] : groups[name]}
+        onChange={onChange}
+      />
+    ));
 };
 
 export default GroupedMultiSelect;
 
 GroupedMultiSelect.propTypes = {
-  items: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    name: PropTypes.string,
-    selected: PropTypes.bool,
-  })),
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+      selected: PropTypes.bool,
+    }),
+  ),
   onChange: PropTypes.func,
   groupBy: PropTypes.string.isRequired,
 };
