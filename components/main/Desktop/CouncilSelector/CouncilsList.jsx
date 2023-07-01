@@ -44,10 +44,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const CouncilsList = ({
-  items,
-  onClick,
-}) => {
+const CouncilsList = ({ items, onClick }) => {
   const classes = useStyles();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -58,14 +55,14 @@ const CouncilsList = ({
           <SearchBar
             placeholder="Enter district"
             onChange={setSearchTerm}
-            value={searchTerm}
+            value={searchTerm.toUpperCase()}
           />
         </div>
       </div>
       <div className={classes.scrollWrapper}>
         <GroupedMultiSelect
           items={items}
-          groupBy="regionName"
+          groupBy="SERVICE_RE"
           onChange={onClick}
           searchTerm={searchTerm}
         />

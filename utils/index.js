@@ -140,3 +140,26 @@ export function isEmpty(value) {
   // not empty
   return false;
 }
+
+export function truncateName(name, maxLen) {
+  const nameLen = name.length;
+  if (nameLen <= maxLen) {
+    return name;
+  }
+  const ellipsisLen = 3;
+  const charsToShow = maxLen - ellipsisLen;
+  const frontChars = Math.ceil(charsToShow / 2);
+  const backChars = Math.floor(charsToShow / 2);
+  const truncatedName = `${name.slice(0, frontChars)}...${name.slice(
+    nameLen - backChars,
+  )}`;
+  return truncatedName;
+}
+
+export function removeFromName(name, replaceStrings) {
+  let cleanedName = name.toUpperCase();
+  replaceStrings.forEach(str => {
+    cleanedName = cleanedName.replace(str.toUpperCase(), '');
+  });
+  return cleanedName;
+}

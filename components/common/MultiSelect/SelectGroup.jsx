@@ -12,18 +12,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const SelectGroup = ({
-  name,
-  items,
-  onChange,
-}) => {
+const SelectGroup = ({ name, items, onChange }) => {
   const classes = useStyles();
 
   return (
     <div>
-      <div className={classes.groupName}>
-        {`${name} (${items.length})`}
-      </div>
+      <div className={classes.groupName}>{`${name} (${items.length})`}</div>
       {items.map(item => (
         <SelectItem
           key={item.councilId}

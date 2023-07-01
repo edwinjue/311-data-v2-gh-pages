@@ -20,9 +20,7 @@ const Desktop = ({ initialState }) => {
   return (
     <div className={classes.root}>
       <PersistentDrawerLeft />
-      <MapContainer
-        initialState={initialState}
-      />
+      <MapContainer initialState={initialState} />
     </div>
   );
 };

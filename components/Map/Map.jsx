@@ -202,7 +202,7 @@ class Map extends React.Component {
           addListeners: true,
           sourceId: 'nc',
           sourceData: this.props.ncBoundaries,
-          idProperty: 'council_id',
+          idProperty: 'NC_ID',
           onSelectRegion: (geo) => {
             this.setState({
               locationInfo: {
@@ -457,14 +457,13 @@ class Map extends React.Component {
     } = this.props;
 
     const features = this.getAllFeaturesAtPoint(e.point);
-
     for (let i = 0; i < features.length; i += 1) {
       const feature = features[i];
 
       if (
         !isEmpty(this.props.selectedNcId) &&
-        !isEmpty(feature.properties.council_id) &&
-        this.props.selectedNcId !== feature.properties.council_id
+        !isEmpty(feature.properties.NC_ID) &&
+        this.props.selectedNcId !== feature.properties.NC_ID
       ) {
         // Since click is for another district
 
@@ -489,11 +488,13 @@ class Map extends React.Component {
             this.setState({ address: null });
             this.resetAddressSearch(); // Clear address search input
             dispatchCloseBoundaries(); // Collapse boundaries section
-            const selectedCouncilId = Number(feature.properties.council_id);
+            const selectedCouncilId = Number(feature.properties.NC_ID);
             const newSelectedCouncil = councils.find(
               ({ councilId }) => councilId === selectedCouncilId
             );
-            const newSelected = [newSelectedCouncil];
+            const newSelected = isEmpty(newSelectedCouncil)
+              ? null
+              : [newSelectedCouncil];
             dispatchUpdateSelectedCouncils(newSelected);
             dispatchUpdateUnselectedCouncils(councils);
             dispatchUpdateNcId(selectedCouncilId);
@@ -532,39 +533,15 @@ class Map extends React.Component {
     // Reset map & zoom out
     this.reset();
 
-    console.log({ result });
-    console.log(`result.properties.type=${result.properties.type}`);
-    console.log(`GEO_FILTER_TYPES.nc=${GEO_FILTER_TYPES.nc}`);
-
     if (result.properties.type === GEO_FILTER_TYPES.nc) {
-      console.log('result.properties.type === GEO_FILTER_TYPES.nc');
-      console.log('calling this.setState({ address: null });');
       this.setState({ address: null });
-      console.log(`calling dispatchUpdateNcId(${result.id});`);
       dispatchUpdateNcId(result.id);
     } else {
-      console.log('result.properties.type != GEO_FILTER_TYPES.nc');
       // When result.properties.type does not equal "District"
       const [longitude, latitude] = result.center;
       const address = result.place_name.split(',').slice(0, -2).join(', ');
-      console.log({ address });
-
-      // what does dispatchGetNcByLngLat() do?
-      //
-      // dispatchGetNcByLngLat calls a sagas in redux/sagas/data.js:
-      //  yield takeLatest(types.GET_NC_BY_LNG_LAT, getNcByLngLat);
-      //  which will:
-      //    call(fetchNcByLngLat, action.payload);
-      //  on success: getNcByLngLatSuccess(data) to set value for state.selectedNcId
-      //  on error: getNcByLngLatFailure(e) to set value for state.error object
-      //
-      //  fetchNcByLngLat above makes an API call to:
-      //   `${BASE_URL}/geojson/geocode?latitude=${latitude}&longitude=${longitude}`
-      //
-      //  and returns the data
 
       const ncIdOfAddressSearch = getNcByLngLatv2({ longitude, latitude });
-      console.log({ ncIdOfAddressSearch });
       if (!isEmpty(ncIdOfAddressSearch)) {
         dispatchUpdateNcId(Number(ncIdOfAddressSearch));
         this.setState({
@@ -572,7 +549,7 @@ class Map extends React.Component {
         });
 
         // Add that cute House Icon on the map
-        return this.addressLayer.addMarker(longitude, latitude);
+        return this.addressLayer.addMarker([longitude, latitude]);
       }
     }
   };
