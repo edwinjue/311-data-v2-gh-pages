@@ -3,12 +3,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Modal, Typography } from '@material-ui/core';
 import { seconds } from '@utils';
-
-const facts = [
-  "The world's largest snowflake on record measured 15 inches wide and 8 inches thick",
-  'The fingerprints of a koala are so indistinguishable from humans that they have on occasion been confused at a crime scene',
-  'A group of flamingos is called a flamboyance',
-];
+import facts from '@data/facts';
 
 const useStyles = makeStyles(theme => ({
   modal: {

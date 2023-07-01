@@ -167,3 +167,10 @@ export function removeFromName(name, replaceStrings) {
 export function seconds(milliseconds = 0) {
   return milliseconds * 1000;
 }
+
+export function shuffle(array) {
+  return array
+    .map(a => ({ sort: Math.random(), value: a }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(a => a.value);
+}

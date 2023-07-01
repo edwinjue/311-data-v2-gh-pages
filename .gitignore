@@ -8,16 +8,21 @@ node_modules_non_es5
 # production build
 dist/
 
-webpack-stats.json
-
 # testing
 __snapshots__
 /coverage/
 
+# data
+/data/*.py
+/data/*-old.*
+/data/*.csv
+/data/csv/*
+/data/*.geojson
+
 # misc
-/Temp
-/data
 /db
 /tags
 /Temp
 *-new.*
+webpack-stats.json
+*.old
