@@ -1,13 +1,20 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import ContentBody from '@components/common/ContentBody';
 // import ddbh from '@utils/duckDbHelpers.js';
 // import DbContext from '@db/DbContext';
 
-const DashboardOverview = () => (
-  // const { conn } = useContext(DbContext);
+const DashboardOverview = () => {
+  const isMapLoading = useSelector(state => state.data.isMapLoading);
 
-  <ContentBody>
-    <h1>Welcome to the future of Dashboard Overview</h1>
-  </ContentBody>
-);
+  if (isMapLoading) return null;
+
+  // const { conn } = useContext(DbContext);
+  return (
+    <ContentBody>
+      <h1>Welcome to the future of Dashboard Overview</h1>
+    </ContentBody>
+  );
+};
+
 export default DashboardOverview;
