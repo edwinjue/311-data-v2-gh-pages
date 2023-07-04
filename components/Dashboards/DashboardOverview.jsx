@@ -1,12 +1,12 @@
 /* eslint-disable */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'proptypes';
 import { useSelector } from 'react-redux';
 import ContentBody from '@components/common/ContentBody';
 import QuadLayout from '@dashboards/layouts/QuadLayout';
 
-// import ddbh from '@utils/duckDbHelpers.js';
-// import DbContext from '@db/DbContext';
+import ddbh from '@utils/duckDbHelpers.js';
+import DbContext from '@db/DbContext';
 
 /* Ideally these Quadrants should be imported from widgets as standalone React components */
 import TotalByDayOfWeek from '@dashboards/widgets/TotalByDayOfWeek';
@@ -18,18 +18,25 @@ const Quadrant3 = ({ data }) => (
 const Quadrant4 = ({ data }) => <div>Division Fulfilling Requests</div>;
 
 const DashboardOverview = () => {
-  const [requestsData, setRequestsData] = useState({});
+  const [requestsData, setRequestsData] = useState([]);
 
   const isMapLoading = useSelector((state) => state.data.isMapLoading);
 
+  const { conn } = useContext(DbContext);
+
   useEffect(() => {
     /* Here is some boilerplate code to fetch data from duckdb */
-    // const { conn } = useContext(DbContext);
-    // const requestsAsArrowTable = conn.query('select * from requests')
-    // const requests  = ddbh.getTableData(requestsAsArrowTable)
-    //
-    // setRequestsData(requests)
-  }, []);
+    async function fetchRequests() {
+      const requestsAsArrowTable = await conn.query(
+        'select * from requests limit 10'
+      );
+      const requests = ddbh.getTableData(requestsAsArrowTable);
+
+      setRequestsData(requests);
+    }
+
+    if (!isMapLoading) fetchRequests();
+  }, [isMapLoading]);
 
   if (isMapLoading) return null;
 
@@ -46,7 +53,11 @@ const DashboardOverview = () => {
 };
 
 DashboardOverview.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({})),
+};
+
+DashboardOverview.defaultProps = {
+  data: [{}],
 };
 
 export default DashboardOverview;
