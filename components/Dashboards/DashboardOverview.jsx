@@ -22,14 +22,16 @@ const DashboardOverview = () => {
 
   const isMapLoading = useSelector((state) => state.data.isMapLoading);
 
-  if (isMapLoading) return null;
+  useEffect(() => {
+    /* Here is some boilerplate code to fetch data from duckdb */
+    // const { conn } = useContext(DbContext);
+    // const requestsAsArrowTable = conn.query('select * from requests')
+    // const requests  = ddbh.getTableData(requestsAsArrowTable)
+    //
+    // setRequestsData(requests)
+  }, []);
 
-  /* Here is some boilerplate code to fetch data from duckdb */
-  // const { conn } = useContext(DbContext);
-  // const requestsAsArrowTable = conn.query('some sql')
-  // const requests  = ddbh.getTableData(requestsAsArrowTable)
-  //
-  // setRequestsData(requests)
+  if (isMapLoading) return null;
 
   return (
     <ContentBody>
