@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'proptypes';
 import { useSelector } from 'react-redux';
 import ContentBody from '@components/common/ContentBody';
@@ -22,14 +22,14 @@ const DashboardOverview = () => {
 
   const isMapLoading = useSelector((state) => state.data.isMapLoading);
 
+  if (isMapLoading) return null;
+
   /* Here is some boilerplate code to fetch data from duckdb */
   // const { conn } = useContext(DbContext);
   // const requestsAsArrowTable = conn.query('some sql')
   // const requests  = ddbh.getTableData(requestsAsArrowTable)
   //
   // setRequestsData(requests)
-
-  if (isMapLoading) return null;
 
   return (
     <ContentBody>
