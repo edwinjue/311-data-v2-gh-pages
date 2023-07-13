@@ -20,6 +20,7 @@ const Quadrant4 = ({ data }) => <div>Division Fulfilling Requests</div>;
 const DashboardOverview = () => {
   const [requestsData, setRequestsData] = useState([]);
 
+  // TODO: Need isDataLoading state to indicate whether duckDb data is still loading
   const isMapLoading = useSelector((state) => state.data.isMapLoading);
 
   const { conn } = useContext(DbContext);
