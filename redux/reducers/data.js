@@ -1,4 +1,6 @@
 export const types = {
+  GET_DB_REQUEST: 'GET_DB_REQUEST',
+  GET_DB_REQUEST_SUCCESS: 'GET_DB_REQUEST_SUCCESS',
   GET_DATA_REQUEST: 'GET_DATA_REQUEST',
   GET_DATA_REQUEST_SUCCESS: 'GET_DATA_REQUEST_SUCCESS',
   UPDATE_DATE_RANGES: 'UPDATE_DATE_RANGES',
@@ -23,6 +25,15 @@ export const types = {
   GIT_RESPONSE_SUCCESS: 'GIT_RESPONSE_SUCCESS',
   GIT_RESPONSE_FAILURE: 'GIT_RESPONSE_FAILURE',
 };
+
+export const getDbRequest = () => ({
+  type: types.GET_DB_REQUEST,
+});
+
+export const getDbRequestSuccess = response => ({
+  type: types.GET_DB_REQUEST_SUCCESS,
+  payload: response,
+});
 
 export const getDataRequest = () => ({
   type: types.GET_DATA_REQUEST,
@@ -124,7 +135,8 @@ export const gitResponseFailure = error => ({
 });
 
 const initialState = {
-  isMapLoading: true,
+  isDbLoading: true,
+  isMapLoading: false,
   error: null,
   pins: [],
   pinsInfo: {},
@@ -136,6 +148,17 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case types.GET_DB_REQUEST:
+      return {
+        ...state,
+        isDbLoading: true,
+      };
+    case types.GET_DB_REQUEST_SUCCESS: {
+      return {
+        ...state,
+        isDbLoading: false,
+      };
+    }
     case types.GET_DATA_REQUEST:
       return {
         ...state,

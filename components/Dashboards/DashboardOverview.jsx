@@ -1,7 +1,8 @@
 /* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
+import { getDbRequest, getDbRequestSuccess } from '@reducers/data';
 import PropTypes from 'proptypes';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import ContentBody from '@components/common/ContentBody';
 import QuadLayout from '@dashboards/layouts/QuadLayout';
 
@@ -18,16 +19,19 @@ const Quadrant3 = ({ data }) => (
 const Quadrant4 = ({ data }) => <div>Division Fulfilling Requests</div>;
 
 const DashboardOverview = () => {
+  const dispatch = useDispatch();
+
   const [requestsData, setRequestsData] = useState([]);
 
   // TODO: Need isDataLoading state to indicate whether duckDb data is still loading
-  const isMapLoading = useSelector((state) => state.data.isMapLoading);
+  const isDbLoading = useSelector((state) => state.data.isDbLoading);
 
   const { conn } = useContext(DbContext);
 
   useEffect(() => {
     /* Here is some boilerplate code to fetch data from duckdb */
     async function fetchRequests() {
+      dispatch(getDbRequest());
       const requestsAsArrowTable = await conn.query(
         'select * from requests limit 10'
       );
@@ -36,10 +40,13 @@ const DashboardOverview = () => {
       setRequestsData(requests);
     }
 
-    if (!isMapLoading) fetchRequests();
-  }, [isMapLoading]);
+    if (!isDbLoading) {
+      fetchRequests();
+      dispatch(getDbRequestSuccess());
+    }
+  }, [isDbLoading]);
 
-  if (isMapLoading) return null;
+  if (isDbLoading) return null;
 
   return (
     <ContentBody>

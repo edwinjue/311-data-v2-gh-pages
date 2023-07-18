@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import {
+  getDbRequest,
+  getDbRequestSuccess,
   getDataRequest,
   getDataRequestSuccess,
   updateDateRanges,
@@ -379,21 +381,27 @@ class MapContainer extends React.Component {
   };
 
   duckDbSetData = async () => {
-    const { startDate, endDate, dispatchGetDataRequest } = this.props;
+    const { startDate, endDate, dispatchGetDbRequest, dispatchGetDataRequest } =
+      this.props;
     const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
     if (missingDateRanges.length === 0) {
       return;
     }
-    dispatchGetDataRequest(); // set isMapLoading in redux state.data to true
+    dispatchGetDataRequest(); // set isMapLoading in redux stat.data to true
+    dispatchGetDbRequest(); // set isDbLoading in redux state.data to true
     this.rawRequests = await this.getAllRequests(startDate, endDate);
 
     if (this.isSubscribed) {
-      const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
-        this.props;
+      const {
+        dispatchGetDataRequestSuccess,
+        dispatchGetDbRequestSuccess,
+        dispatchUpdateDateRanges,
+      } = this.props;
       const convertedRequests = this.convertRequests(this.rawRequests);
-
-      // set isMapLoading in redux state.data to false
+      // load map features/requests upon successful map load
       dispatchGetDataRequestSuccess(convertedRequests);
+      // set isDbLoading in redux state.data to false
+      dispatchGetDbRequestSuccess();
       const newDateRangesWithRequests =
         this.resolveDateRanges(missingDateRanges);
       dispatchUpdateDateRanges(newDateRangesWithRequests);
@@ -461,6 +469,7 @@ class MapContainer extends React.Component {
       classes,
       requests,
       isMapLoading,
+      isDbLoading,
     } = this.props;
     const { ncCounts, ccCounts, selectedTypes } = this.state;
     return (
@@ -477,7 +486,7 @@ class MapContainer extends React.Component {
           initialState={this.initialState}
         />
         <CookieNotice />
-        {isMapLoading && (
+        {(isDbLoading || isMapLoading) && (
           <>
             <FactModal isLoading={isMapLoading} />
             <img
@@ -506,12 +515,15 @@ const mapStateToProps = (state) => ({
   requests: state.data.requests,
   dateRangesWithRequests: state.data.dateRangesWithRequests,
   isMapLoading: state.data.isMapLoading,
+  isDbLoading: state.data.isDbLoading,
 });
 
 const mapDispatchToProps = (dispatch) => ({
   dispatchUpdateMapPosition: (position) =>
     dispatch(updateMapPosition(position)),
   dispatchTrackMapExport: () => dispatch(trackMapExport()),
+  dispatchGetDbRequest: () => dispatch(getDbRequest()),
+  dispatchGetDbRequestSuccess: (data) => dispatch(getDbRequestSuccess()),
   dispatchGetDataRequest: () => dispatch(getDataRequest()),
   dispatchGetDataRequestSuccess: (data) =>
     dispatch(getDataRequestSuccess(data)),
