@@ -26,3 +26,10 @@ __snapshots__
 *-new.*
 webpack-stats.json
 *.old
+stats.json
+
+# socrata experimental files
+*-socrata*
+
+# duckDb experimental files
+*-duckDb*
