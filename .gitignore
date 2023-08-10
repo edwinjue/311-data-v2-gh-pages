@@ -20,13 +20,16 @@ __snapshots__
 /data/*.geojson
 
 # misc
-/db
-/tags
-/Temp
+db/
+tags/
+Temp/
 *-new.*
 webpack-stats.json
 *.old
+*\ copy.*
 stats.json
+docker/
+venv/
 
 # socrata experimental files
 *-socrata*
