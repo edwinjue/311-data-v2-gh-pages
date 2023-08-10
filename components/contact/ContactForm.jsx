@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendGitRequest } from '@reducers/data';
-import { showFeedbackSuccess, setErrorModal } from '@reducers/ui';
 import { toast } from 'react-toastify';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { showFeedbackSuccess, setErrorModal } from '@reducers/ui';
+import { sendGitRequest } from '@reducers/data';
 import 'react-toastify/dist/ReactToastify.css';
 
 const initialFormValues = {

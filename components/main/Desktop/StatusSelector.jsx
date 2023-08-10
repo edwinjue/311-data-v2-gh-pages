@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { updateRequestStatus } from '@reducers/filters';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import { updateRequestStatus } from '@reducers/filters';
 
 const useStyles = makeStyles(() => ({
   header: {

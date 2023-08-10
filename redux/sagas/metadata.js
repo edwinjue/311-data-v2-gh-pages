@@ -1,7 +1,6 @@
+import { takeLatest, put, all } from 'redux-saga/effects';
 import { removeFromName, truncateName } from '@utils';
 import settings from '@settings';
-
-import { takeLatest, put, all } from 'redux-saga/effects';
 
 import councils from '@root/data/councils';
 import regions from '@root/data/regions';

@@ -4,13 +4,13 @@ import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import sharedLayout from '@theme/layout';
-import TextHeadingFAQ from '@components/common/TextHeading/TextHeadingFAQ';
-import ContentBody from '@components/common/ContentBody';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import SearchIcon from '@material-ui/icons/Search';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import ContentBody from '@components/common/ContentBody';
+import TextHeadingFAQ from '@components/common/TextHeading/TextHeadingFAQ';
+import sharedLayout from '@theme/layout';
 import useContentful from '../../hooks/useContentful';
 
 const useStyles = makeStyles(theme => ({
