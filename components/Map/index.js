@@ -292,37 +292,7 @@ class MapContainer extends React.Component {
     return dateArray;
   };
 
-  /**
-   * Gets all requests over the time range specified in the Redux store.
-   *
-   * Since the server is slow to retrieve all the requests at once, we need to
-   * make multiple API calls, one for each day.
-   *
-   * @param {string} startDate A date in INTERNAL_DATE_SPEC format.
-   * @param {string} endDate A date in INTERNAL_DATE_SPEC format.
-   * @returns An array of Promises, each representing an API request for a
-   * particular day in the input date range.
-   */
-  socrataGetAllRequests = (startDate, endDate) => {
-    // const datesInRange = this.getDatesInRange(startDate, endDate);
-    const url =
-      `${process.env.SOCRATA_API_URL}?$where=` +
-      encodeURI(`createddate between '${startDate}' and '${endDate}'`) +
-      `&$limit=${REQUEST_LIMIT}&$$app_token=${process.env.SOCRATA_TOKEN}`;
-
-    var requests = [];
-    // for (const date of datesInRange){
-    //   const url = new URL(`${process.env.API_URL}/requests`);
-    //   url.searchParams.append("start_date", date);
-    //   url.searchParams.append("end_date", date);
-    //   url.searchParams.append("limit", `${REQUEST_LIMIT}`);
-    //   requests.push(axios.get(url));
-    // }
-    requests.push(axios.get(url));
-    return requests;
-  };
-
-  duckDbGetAllRequests = async (startDate, endDate) => {
+  getAllRequests = async (startDate, endDate) => {
     try {
       const { conn } = this.context;
 
@@ -331,56 +301,20 @@ class MapContainer extends React.Component {
 
       const requestsAsArrowTable = await conn.query(selectSQL);
 
-      const requestsData = ddbh.getTableData(requestsAsArrowTable);
+      const requests = ddbh.getTableData(requestsAsArrowTable);
 
       this.endTime = performance.now(); // end bnechmark
 
       console.log(
         `Time taken to bootstrap db: ${this.endTime - this.startTime}ms`
       );
-      return requestsData;
+      return requests;
     } catch (e) {
       console.error(e);
     }
   };
 
-  getAllRequests = async (startDate, endDate) => {
-    const requests = await this.duckDbGetAllRequests(startDate, endDate);
-    return requests;
-  };
-
-  socrataSetData = async () => {
-    const { startDate, endDate, dispatchGetDataRequest } = this.props;
-
-    const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
-    if (missingDateRanges.length === 0) {
-      return;
-    }
-    dispatchGetDataRequest();
-    this.rawRequests = [];
-    var allRequestPromises = [];
-    for (const missingDateRange of missingDateRanges) {
-      const requestPromises = this.getAllRequests(
-        missingDateRange[0],
-        missingDateRange[1]
-      );
-      allRequestPromises.push(...requestPromises);
-    }
-    await Promise.all(allRequestPromises.flat()).then((responses) => {
-      responses.forEach((response) => this.rawRequests.push(...response.data));
-    });
-
-    if (this.isSubscribed) {
-      const { dispatchGetDataRequestSuccess, dispatchUpdateDateRanges } =
-        this.props;
-      dispatchGetDataRequestSuccess(this.convertRequests(this.rawRequests));
-      const newDateRangesWithRequests =
-        this.resolveDateRanges(missingDateRanges);
-      dispatchUpdateDateRanges(newDateRangesWithRequests);
-    }
-  };
-
-  duckDbSetData = async () => {
+  setData = async () => {
     const { startDate, endDate, dispatchGetDbRequest, dispatchGetDataRequest } =
       this.props;
     const missingDateRanges = this.getMissingDateRanges(startDate, endDate);
@@ -408,28 +342,7 @@ class MapContainer extends React.Component {
     }
   };
 
-  setData = async () => {
-    await this.duckDbSetData();
-  };
-
-  socrataConvertRequests = (requests) =>
-    requests.map((request) => ({
-      type: 'Feature',
-      properties: {
-        requestId: request.srnumber,
-        typeId: getTypeIdFromTypeName(request.requesttype),
-        closedDate: request.closedDate,
-        // Store this in milliseconds so that it's easy to do date comparisons
-        // using Mapbox GL JS filters.
-        createdDateMs: moment(request.createdDate).valueOf(),
-      },
-      geometry: {
-        type: 'Point',
-        coordinates: [request.longitude, request.latitude],
-      },
-    }));
-
-  duckDbConvertRequests = (requests) =>
+  convertRequests = (requests) =>
     requests.map((request) => {
       // Be careful, request properties are case-sensitive
       return {
@@ -448,8 +361,6 @@ class MapContainer extends React.Component {
         },
       };
     });
-
-  convertRequests = (requests) => this.duckDbConvertRequests(requests);
 
   // TODO: fix this
   getSelectedTypes = () => {
