@@ -4,7 +4,6 @@ import React from 'react';
 import PropTypes from 'proptypes';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import axios from 'axios';
 import {
   getDbRequest,
   getDbRequestSuccess,
