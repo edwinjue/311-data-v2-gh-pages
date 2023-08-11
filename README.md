@@ -47,6 +47,7 @@ Our mission is to create a user-friendly platform for anyone interested in explo
 * node -v (make sure you are using node version 12.*)
 * clone the repo
 * cd 311-data-v2-gh-pages/
+* cp .example.env .env  (you will need to edit .env and supply a valid MAPBOX_TOKEN. If you are a member of hack4la, please contact me on slack.)
 * npm run setup && npm start
 * visit http://localhost:3000
 
