@@ -23,7 +23,6 @@ import { INTERNAL_DATE_SPEC } from '../common/CONSTANTS';
 import { getTypeIdFromTypeName } from '@utils';
 import FactModal from '@components/FactModal';
 import CookieNotice from '../main/CookieNotice';
-// import "mapbox-gl/dist/mapbox-gl.css";
 import Map from './Map';
 import moment from 'moment';
 import gif from '@assets/loading.gif';
