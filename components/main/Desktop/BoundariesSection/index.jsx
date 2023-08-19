@@ -3,7 +3,6 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'proptypes';
 import { connect } from 'react-redux';
-import { toggleBoundaries, showBoundaries, closeBoundaries } from '@reducers/ui';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
@@ -12,6 +11,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Box from '@material-ui/core/Box';
 import CollapseMUI from '@material-ui/core/Collapse';
 import { makeStyles } from '@material-ui/core/styles';
+import { toggleBoundaries, showBoundaries, closeBoundaries } from '@reducers/ui';
 
 const useStyles = makeStyles(theme => ({
   card: {

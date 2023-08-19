@@ -3,12 +3,12 @@ import React, {
 } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
-import ReactDayPicker from '@components/common/ReactDayPicker';
 import PropTypes from 'prop-types';
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import IconButton from '@material-ui/core/IconButton';
-import useOutsideClick from '@components/common/customHooks/useOutsideClick';
 import { makeStyles } from '@material-ui/core';
+import useOutsideClick from '@components/common/customHooks/useOutsideClick';
+import ReactDayPicker from '@components/common/ReactDayPicker';
 
 // TODO: Apply gaps (margin, padding) from theme
 

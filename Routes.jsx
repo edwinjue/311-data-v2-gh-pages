@@ -3,9 +3,10 @@ import {
   Switch, Route, Redirect, useLocation,
 } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core/styles';
-import theme, { darkTheme } from '@theme/theme';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
+import queryString from 'query-string';
+import theme, { darkTheme } from '@theme/theme';
 import Desktop from '@components/main/Desktop';
 import DashboardOverview from '@dashboards/DashboardOverview';
 import DashboardComparison from '@dashboards/DashboardComparison';
@@ -15,7 +16,6 @@ import About from '@components/main/About';
 import Research from '@components/main/Research';
 import Contact from '@components/contact/Contact';
 import ContentBottom from '@components/common/ContentBottom';
-import queryString from 'query-string';
 
 export default function Routes() {
   const { pathname, search } = useLocation();

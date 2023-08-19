@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   updateNcId,
   updateSelectedCouncils,
@@ -8,7 +9,6 @@ import {
 } from '@reducers/filters';
 import { closeBoundaries } from '@reducers/ui';
 import { debounce } from '@utils';
-import { makeStyles } from '@material-ui/core/styles';
 import not from '@utils/not';
 import BoundariesSection from '@components/main/Desktop/BoundariesSection';
 import SelectedCouncils from './SelectedCouncils';

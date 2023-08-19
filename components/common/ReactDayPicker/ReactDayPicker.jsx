@@ -1,9 +1,5 @@
 import 'react-day-picker/lib/style.css';
 
-import {
-  updateEndDate as reduxUpdateEndDate,
-  updateStartDate as reduxUpdateStartDate,
-} from '@reducers/filters';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
@@ -11,6 +7,10 @@ import DayPicker from 'react-day-picker';
 import { connect } from 'react-redux';
 import { makeStyles } from '@material-ui/core';
 import clsx from 'clsx';
+import {
+  updateEndDate as reduxUpdateEndDate,
+  updateStartDate as reduxUpdateStartDate,
+} from '@reducers/filters';
 
 import fonts from '@theme/fonts';
 import colors from '@theme/colors';

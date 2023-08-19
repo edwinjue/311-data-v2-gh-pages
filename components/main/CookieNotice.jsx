@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { acceptCookies } from '@reducers/ui';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import { CardHeader } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { acceptCookies } from '@reducers/ui';
 import colors from '@theme/colors';
 
 const useStyles = makeStyles(theme => ({

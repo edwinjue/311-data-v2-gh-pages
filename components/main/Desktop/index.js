@@ -1,8 +1,8 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-import MapContainer from '@components/Map';
 import PropTypes from 'prop-types';
+import MapContainer from '@components/Map';
 import PersistentDrawerLeft from '../shared/PersistentDrawerLeft';
 
 const useStyles = makeStyles(theme => ({

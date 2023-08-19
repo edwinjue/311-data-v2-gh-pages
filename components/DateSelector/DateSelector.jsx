@@ -1,13 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import SelectorBox from '@components/common/SelectorBox';
 import DatePicker from '@components/common/DatePicker';
 import {
   updateStartDate as reduxUpdateStartDate,
   updateEndDate as reduxUpdateEndDate,
 } from '@reducers/filters';
-import moment from 'moment';
 import options from './options';
 import useStyles from './useStyles';
 import DateRanges from './DateRanges';

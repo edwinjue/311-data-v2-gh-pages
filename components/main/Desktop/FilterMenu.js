@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'proptypes';
 import { connect } from 'react-redux';
-import { toggleMenu as reduxToggleMenu } from '@reducers/ui';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -11,6 +10,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
+import { toggleMenu as reduxToggleMenu } from '@reducers/ui';
 import DateSelector from '@components/DateSelector/DateSelector';
 import TypeSelector from '@components/main/Desktop/TypeSelector';
 import StatusSelector from '@components/main/Desktop/StatusSelector';

@@ -13,11 +13,11 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import LinkIcon from '@material-ui/icons/Link';
 import { connect } from 'react-redux';
+import Radio from '@material-ui/core/Radio';
 import {
   toggleMenu as reduxToggleMenu,
   closeMenu as reduxCloseMenu,
 } from '@reducers/ui';
-import Radio from '@material-ui/core/Radio';
 
 const drawerWidth = 275;
 
