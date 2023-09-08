@@ -2,15 +2,15 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles'
+import { withStyles } from '@material-ui/core/styles';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { GEO_FILTER_TYPES } from '../constants';
-import settings from '@settings'
+import settings from '@settings';
 
 const TABS = Object.values(GEO_FILTER_TYPES);
 
-const styles = theme => ({
+const styles = (theme) => ({
   geocoder: {
     width: 325,
     backgroundColor: theme.palette.primary.dark,
@@ -35,8 +35,8 @@ const styles = theme => ({
           ...theme.typography.body2,
           color: theme.palette.text.secondaryDark,
         },
-      }
-    }
+      },
+    },
   },
   wrapper: {
     '& button:first-child': {
@@ -59,19 +59,21 @@ const styles = theme => ({
 
 class MapSearch extends React.Component {
   // Array to keep track of event listeners for memory management
-  listeners = []  
+  listeners = [];
 
   // addListener attaches a new event `listener` to `element` with `eventName` type of event
-  // and adds it to the listeners array 
+  // and adds it to the listeners array
   addListener(element, eventName, listener) {
     element.addEventListener(eventName, listener);
     this.listeners.push(listener);
   }
 
   // removeListeners removes and frees all memory associated with `eventName` type of event
-  // in the listeners array 
+  // in the listeners array
   removeListeners(element, eventName) {
-    this.listeners.forEach(listener => element.removeEventListener(eventName, listener));
+    this.listeners.forEach((listener) =>
+      element.removeEventListener(eventName, listener)
+    );
   }
 
   componentDidMount() {
@@ -82,60 +84,73 @@ class MapSearch extends React.Component {
       flyTo: false,
       marker: false,
       minLength: 1,
-      localGeocoder: searchTerm => {
+      localGeocoder: (searchTerm) => {
         const { geoFilterType } = this.props;
         const searchFilter = new RegExp(searchTerm, 'i');
 
-        switch(geoFilterType) {
+        switch (geoFilterType) {
           case GEO_FILTER_TYPES.address:
             return [];
 
           case GEO_FILTER_TYPES.nc:
             const { councils } = this.props;
-            const filteredCouncils = councils.filter(({ councilName }) => (
+            const filteredCouncils = councils.filter(({ councilName }) =>
               searchFilter.test(councilName)
-            ));
-            return filteredCouncils.map(council => ({
+            );
+            return filteredCouncils.map((council) => ({
               type: 'Feature',
               id: council.councilId,
               text: council.councilName,
               place_name: council.councilName,
               properties: {
                 type: GEO_FILTER_TYPES.nc,
-              }
+              },
             }));
         }
+      },
+      filter: (item) => {
+        // Early return if item is undefined
+        if (item?.context === undefined || item.context.length === 0) return;
+
+        return item.context.some((i) => {
+          return (
+            i.id?.split('.')?.shift() === 'district' &&
+            i.text === 'Los Angeles County'
+          );
+        });
       },
     });
 
     // This event fires upon an Address Search submission
     this.geocoder.on('result', ({ result }) => {
       this.props.onGeocoderResult({ result });
-      
+
       // This clears the address from the Address input field.
-      // this.geocoder.clear(); 
+      // this.geocoder.clear();
     });
 
-    const geocoderElement = document.getElementById('geocoder')
+    const geocoderElement = document.getElementById('geocoder');
     geocoderElement.appendChild(this.geocoder.onAdd(map));
 
     // Add a custom event listener to clear the Address Search Input field
-    this.addListener(geocoderElement, settings.map.eventName.reset, ()=>this.geocoder.clear() )
-    
+    this.addListener(geocoderElement, settings.map.eventName.reset, () =>
+      this.geocoder.clear()
+    );
+
     // this.setTab(GEO_FILTER_TYPES.address);
   }
 
   componentWillUnmount() {
     // Free memory and remove all event listeners
-    const geocoderElement = document.getElementById('geocoder')
-    removeListeners(geocoderElement, settings.map.eventName.reset)
+    const geocoderElement = document.getElementById('geocoder');
+    removeListeners(geocoderElement, settings.map.eventName.reset);
   }
 
-  setTab = tab => {
+  setTab = (tab) => {
     this.props.onChangeTab(tab);
     this.geocoder.clear();
     this.geocoder.setPlaceholder(`Enter ${tab.toLowerCase()}`);
-    switch(tab) {
+    switch (tab) {
       case GEO_FILTER_TYPES.address:
         this.geocoder.options.localGeocoderOnly = false;
         break;
@@ -143,7 +158,7 @@ class MapSearch extends React.Component {
         this.geocoder.options.localGeocoderOnly = true;
         break;
     }
-  }
+  };
 
   render() {
     const { classes, geoFilterType } = this.props;
@@ -169,7 +184,7 @@ class MapSearch extends React.Component {
       </div>
     );
   }
-};
+}
 
 MapSearch.propTypes = {
   map: PropTypes.shape({}),
@@ -186,7 +201,7 @@ MapSearch.defaultProps = {
   onGeocoderResult: () => {},
   onChangeTab: () => {},
   onReset: () => {},
-  canReset: false
+  canReset: false,
 };
 
 export default withStyles(styles)(MapSearch);
