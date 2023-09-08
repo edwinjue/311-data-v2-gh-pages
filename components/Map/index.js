@@ -488,7 +488,7 @@ class MapContainer extends React.Component {
         <CookieNotice />
         {(isDbLoading || isMapLoading) && (
           <>
-            <FactModal isLoading={isMapLoading} />
+            <FactModal />
             <img
               style={{
                 width: window.innerWidth,
