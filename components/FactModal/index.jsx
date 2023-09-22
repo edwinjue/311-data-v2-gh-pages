@@ -4,7 +4,7 @@ import { Modal, Typography } from '@material-ui/core';
 import { seconds } from '@utils';
 import facts from '@data/facts';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   modal: {
     display: 'flex',
     alignItems: 'center',
@@ -30,8 +30,7 @@ export default function FactModal() {
       setCurrentFactIndex((currentFactIndex + 1) % facts.length);
     }, seconds(5));
     return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // make sure dependency array is empty to execute once only
+  }, [currentFactIndex]);
 
   const handleClose = () => {
     setOpen(false);
