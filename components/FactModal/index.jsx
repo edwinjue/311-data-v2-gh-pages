@@ -4,7 +4,7 @@ import { Modal, Typography } from '@material-ui/core';
 import { seconds } from '@utils';
 import facts from '@data/facts';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   modal: {
     display: 'flex',
     alignItems: 'center',
