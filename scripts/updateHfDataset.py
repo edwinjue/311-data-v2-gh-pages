@@ -29,7 +29,7 @@ def hfClean():
     '''
     infile = "2023.csv"
     fixed_filename = "2023-fixed.csv"
-    clean_filename = "2023-clean.csv"
+    clean_filename = "2023-clean.parquet"
 
     # List of problmenatic strings to be replaced with ""
     replace_strings = ["VE, 0"]
@@ -48,7 +48,7 @@ def hfClean():
         conn.execute(
             f"create table requests as select * from read_csv_auto('{fixed_filename}', header=True, timestampformat='%m/%d/%Y %H:%M:%S %p');")
         conn.execute(
-            f"copy (select * from requests) to '{clean_filename}' with (HEADER True, DELIMITER ',');")
+            f"copy (select * from requests) to '{clean_filename}' with (FORMAT PARQUET);")
 
     except FileNotFoundError:
         print(f"File {infile} not found.")
@@ -58,8 +58,8 @@ def hfUpload():
     '''
     Upload the clean dataset to huggingface.co
     '''
-    local_filename = '2023-clean.csv'
-    dest_filename = '2023.csv'
+    local_filename = '2023-clean.parquet'
+    dest_filename = '2023.parquet'
     username = 'edwinjue'
     repo_name = '311-data-2023'
     repo_type = 'dataset'
@@ -78,7 +78,9 @@ def hfUpload():
 
 
 def cleanUp():
-    for file in glob.glob("*.csv"):
+    for file in glob.glob('*.csv'):
+        os.remove(file)
+    for file in glob.glob('*.parquet'):
         os.remove(file)
 
 
