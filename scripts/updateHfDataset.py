@@ -29,7 +29,7 @@ def hfClean():
     '''
     infile = "2024.csv"
     fixed_filename = "2024-fixed.csv"
-    clean_filename = "2024-clean.csv"
+    clean_filename = "2024-clean.parquet"
 
     # List of problmenatic strings to be replaced with ""
     replace_strings = ["VE, 0"]
@@ -58,8 +58,8 @@ def hfUpload():
     '''
     Upload the clean dataset to huggingface.co
     '''
-    local_filename = '2024-clean.csv'
-    dest_filename = '2024.csv'
+    local_filename = '2024-clean.parquet'
+    dest_filename = '2024.parquet'
     username = 'edwinjue'
     repo_name = '311-data-2024'
     repo_type = 'dataset'
