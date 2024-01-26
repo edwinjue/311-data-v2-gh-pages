@@ -42,8 +42,11 @@ const DbProvider = ({ children }) => {
         });
 
         // Initialize a new duckdb instance
+        const allBundles = duckdb.getJsDelivrBundles();
+        const bestBundle = await duckdb.selectBundle(allBundles);
         const logger = new duckdb.ConsoleLogger();
-        const newWorker = new Worker(DUCKDB_CONFIG.mainWorker);
+        // const newWorker = new Worker(DUCKDB_CONFIG.mainWorker);
+        const newWorker = new Worker(bestBundle.mainWorker);
 
         const newDb = new duckdb.AsyncDuckDB(logger, newWorker);
 
